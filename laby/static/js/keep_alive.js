@@ -24,6 +24,7 @@ function keep_alive() {
             workspace.clear();
             document.getElementById("javascript-code0").value="";
             document.getElementById("javascript-code1").value="";
+            opponentSpan.textContent = "";
             setup(); // Reset labyrinthe
             gameBoard.style.position = 'absolute';
             msgBox.textContent = "En attente d'un adversaire"

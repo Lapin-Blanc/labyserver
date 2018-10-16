@@ -49,12 +49,16 @@
     </div>
 
     <!-- Header -->
-    <h2>Partie en cours : {{ game.name }}</h2>    
+    <h2>Partie en cours : 
+        <img class="game-icon" src='{% if position == 0 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'> {{ player }}
+        contre
+        <span id="opponent"></span> <img class="game-icon" src='{% if position == 1 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'>
+    </h2>    
     <hr>
     
     <!-- Game board-->
     <div id="game-board" style="left:-300000px;position:absolute;">
-      <h4>Tour <span id="round-number">1</span> - {{ player }} contre <span id="opponent"></span></h4>
+      <h3>Tour <span id="round-number">1</span></h3>
       <table border="1">
         <tr>
           <td><div id="blocklyDiv" style="height: 500px; width: 500px;"></td>

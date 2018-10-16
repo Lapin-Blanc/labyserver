@@ -16,6 +16,10 @@ div.status > a {
   margin: 10px 0px;
 }
 
+img.game-icon {
+  position : relative;
+  top : 13px;
+}
 table.game-list > tr, th {
   border-collapse: collapse;
   border: 1px solid black;
