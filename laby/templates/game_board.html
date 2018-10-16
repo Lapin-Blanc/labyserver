@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Jeu</title>
+    <link rel="stylesheet" type="text/css" href='{% static "css/game.css" %}'>
+    <link rel="stylesheet" type="text/css" href='{% static "css/interpreter.css" %}'>
+
+    <script src='{% static "third-party/p5/p5.js" %}'></script>
+    <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
+    <script src='{% static "js/p5_labyrinthe.js" %}'></script>
+
+    <script src='{% static "third-party/interpreter/acorn_interpreter.js" %}'></script>
+    <script src='{% static "third-party/interpreter/interpreter.js" %}'></script>
+    <!-- inclusion order is important -->
+    <script src='{% static "js/custom_interpreter_api.js" %}'></script>
+    <script src='{% static "js/init_interpreter.js" %}'></script>
+       
+    <!-- Blockly -->
+    <script src='{% static "third-party/blockly/blockly_compressed.js" %}'></script>
+    <script src='{% static "third-party/blockly/blocks_compressed.js" %}'></script>
+    <script src='{% static "third-party/blockly/msg/js/fr.js" %}'></script>
+    <!-- Generated language -->
+    <script src='{% static "third-party/blockly/javascript_compressed.js" %}'></script>
+    <!-- Custom blockly elements -->
+    <script src='{% static "js/blocks.js" %}'></script>
+    <script src='{% static "js/my_toolbox.js" %}'></script>
+    <!-- Functionnal game/user management -->
+    <script src='{% static "js/keep_alive.js" %}'></script>
+    <script src='{% static "js/exchange_code.js" %}'></script>
+    <script>
+      var keep_alive_url = "{% url 'laby:keep_alive' game.id %}";
+      var exchange_code_url = "{% url 'laby:exchange_code' game.id %}";
+      var end_round_url = "{% url 'laby:end_round' game.id %}";
+      var position = {{ position }}
+      var local_code = "javascript-code0";
+      var remote_code = "javascript-code1";
+    </script>
+  </head>
+
+  <body>
+    <!-- Status -->
+    <div class="status">
+      <p>Bonjour {{ player }}</p>
+      <a href="{% url 'laby:logout' %}">Déconnexion</a><br>
+      <a href="{% url 'laby:leave_game' game.id %}">Quitter la partie</a><br>
+      <div id="messages"></div>
+    </div>
+
+    <!-- Header -->
+    <h2>Partie en cours : {{ game.name }}</h2>    
+    <hr>
+    
+    <!-- Game board-->
+    <div id="game-board" style="left:-300000px;position:absolute;">
+      <h4>Tour <span id="round-number">1</span> - {{ player }} contre <span id="opponent"></span></h4>
+      <table border="1">
+        <tr>
+          <td><div id="blocklyDiv" style="height: 500px; width: 500px;"></td>
+          <td style="padding:10px;"><div id="myCanvas"></td>
+        </tr>
+        <tr>
+            <td>
+              <textarea id="javascript-code0" class="js-code">{{ code }}</textarea>
+            </td>
+          <td>
+              <textarea id="javascript-code1" class="js-code" disabled="disabled">{{ code }}</textarea>
+          </td>
+        </tr>
+      </table>    
+      <button onclick="exchange_code();" id="validate-button" disabled="disabled">Valider</button>
+    </div>
+
+<!--
+  <button onclick="keep_alive();">Keep alive</button>
+-->
+  
+  <div id="csrf">{% csrf_token %}</div>
+  <script>keep_alive()</script>
+  <!-- Blockly -->
+  <script>
+    <!-- Injection -->
+    var workspace = Blockly.inject('blocklyDiv',
+        {
+        toolbox: my_toolbox, // from my_toolbox.js
+        trashcan: true
+        }
+      );
+    <!-- Automatic update for generated code -->
+    function myUpdateFunction(event) {
+      var code = Blockly.JavaScript.workspaceToCode(workspace);
+    document.getElementById("javascript-code0").value = code;
+    }
+    workspace.addChangeListener(myUpdateFunction);
+    
+  </script>
+  </body>
+
+</html>

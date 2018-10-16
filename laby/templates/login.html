@@ -1,0 +1,23 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Login</title>
+  </head>
+
+  <body>
+
+    {% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
+    <h3>Identification</h3>
+    <form action="{% url 'laby:login' %}" method="post">
+    {% csrf_token %}
+        <label for="username">Pseudo : </label>
+        <input type="text" name="pseudo" id="pseudo">
+        <input type="submit" value="Entrer">
+    </form>
+
+  </body>
+
+</html>

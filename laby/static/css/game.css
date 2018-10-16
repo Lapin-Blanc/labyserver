@@ -1,0 +1,24 @@
+div.status {
+  border : solid black 1px;
+  float : right;
+  clear : both;
+  padding : 15px;
+}
+
+div.status > a {
+  display : block;
+  float : right;
+}
+
+#messages {
+  padding : 5px 0px;
+  background-color : #e6ffe6;
+  margin: 10px 0px;
+}
+
+table.game-list > tr, th {
+  border-collapse: collapse;
+  border: 1px solid black;
+  padding : 5px;
+}
+

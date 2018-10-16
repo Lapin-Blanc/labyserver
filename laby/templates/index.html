@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Accueil</title>
+    <link rel="stylesheet" type="text/css" href='{% static "css/game.css" %}'>
+    <script>
+    function includeHTML() {
+      var elmnt, file, xhttp;
+      elmnt = document.getElementById("game-list");
+      file = elmnt.getAttribute("w3-include-html");
+      if (file) {
+        /* make an HTTP request using the attribute value as the file name: */
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4) {
+            if (this.status == 200) {elmnt.innerHTML = this.responseText;}
+            if (this.status == 404) {elmnt.innerHTML = "Page not found.";}
+          }
+        }
+        xhttp.open("GET", file, true);
+        xhttp.send();
+      }
+      setTimeout(includeHTML, 5000);
+    }
+    </script>  
+  </head>
+
+  <body>
+
+    <h2>Parties en cours : </h2><div style="float:right;">Bonjour {{ player }} | <a href="{% url 'laby:logout' %}">Déconnexion</a></div>
+    
+    <div id="game-list" w3-include-html="{% url 'laby:game_list' %}"></div> 
+
+    <hr>        
+
+    {% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <h3>Créer une nouvelle partie : </h3>
+
+    <form action="{% url 'laby:create_game' %}" method="post">
+    {% csrf_token %}
+        <label for="gamename">Nom de la partie : </label>
+        <input type="text" name="gamename" id="gamename">
+        <input type="submit" value="Créer">
+    </form>
+
+    <script>
+      includeHTML();
+    </script> 
+  </body>
+
+</html>
