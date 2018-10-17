@@ -125,3 +125,23 @@ Blockly.JavaScript['maze_blocked'] = function(block) {
   // TODO: Change ORDER_NONE to the correct strength.
   return [code, Blockly.JavaScript.ORDER_NONE];
 };
+////////////// End of block
+
+Blockly.Blocks['maze_coinsFaced'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Pièces en vue");
+    this.setOutput(true, "Number");
+    this.setColour("%{BKY_MATH_HUE}");
+ this.setTooltip("Nombre de pièces en vue, droit devant");
+ this.setHelpUrl("");
+  }
+};
+
+Blockly.JavaScript['maze_coinsFaced'] = function(block) {
+  // TODO: Assemble JavaScript into code variable.
+  var code = 'coinsFaced()';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, Blockly.JavaScript.ORDER_NONE];
+};
+////////////// End of block

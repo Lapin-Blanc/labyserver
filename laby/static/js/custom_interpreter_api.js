@@ -43,5 +43,14 @@
   interpreter.setProperty(scope, 'facingWall',
       interpreter.createAsyncFunction(wrapper));
   /*------------------------------------------*/
+
+  ///////////////////////////////////////////////
+  // Facing a wall ?
+  var wrapper = function(callback) {
+    interpreter.player.coinsFaced(callback);
+  }
+  interpreter.setProperty(scope, 'coinsFaced',
+      interpreter.createAsyncFunction(wrapper));
+  /*------------------------------------------*/
 }
 

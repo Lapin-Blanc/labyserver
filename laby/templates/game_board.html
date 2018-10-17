@@ -61,10 +61,10 @@
     
     <!-- Game board-->
     <div id="game-board" style="left:-300000px;position:absolute;">
-      <h3>Tour <span id="round-number">1</span></h3>
+      <h3>Tour <span id="round-number">1</span>  <button onclick="exchange_code();" id="validate-button" disabled="disabled">Valider</button></h3>
       <table border="1">
         <tr>
-          <td><div id="blocklyDiv" style="height: 500px; width: 500px;"></td>
+          <td><div id="blocklyDiv" style="height: 520px; width: 700px;"></td>
           <td style="padding:10px;"><div id="myCanvas"></td>
         </tr>
         <tr>
@@ -76,7 +76,6 @@
           </td>
         </tr>
       </table>    
-      <button onclick="exchange_code();" id="validate-button" disabled="disabled">Valider</button>
     </div>
 
 <!--

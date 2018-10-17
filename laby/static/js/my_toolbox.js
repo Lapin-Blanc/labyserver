@@ -5,6 +5,7 @@
 				<block type='maze_moveForward'></block>
 				<block type='maze_turn'></block>
 				<block type='maze_blocked'></block>        
+				<block type='maze_coinsFaced'></block>        
 			</category>
 			<category name='Logique' colour='%{BKY_LOGIC_HUE}'>
 				<block type='controls_if'></block>

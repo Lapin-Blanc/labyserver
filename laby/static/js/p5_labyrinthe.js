@@ -11,7 +11,8 @@ const C = 1 // gold coin
 const I = 2 // vertical wall
 const H = 3 // horizontal wall
 const X = 4 // Super coin
-const OK = [_, C, X]
+const OK = [_, C, X] // Free spots
+const COINS = [C, X] // Available coins
 
 var map01 = [
   [I,H,H,H,H,H,H,H,H,I],
@@ -126,6 +127,48 @@ function Player(name, img) {
         break;
     }    
     return !OK.includes(block);
+  }
+
+  var coinsFaced_ = function() {
+    var xIndex = posX/BLOCK_SIZE;
+    var yIndex = posY/BLOCK_SIZE;
+    var coinsCount = 0;
+    block = coinMap[yIndex][xIndex];
+    switch (direction) {
+      case DOWN :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          yIndex++;
+          block = coinMap[yIndex][xIndex];
+        }
+        if (DEBUG) console.log(coinsCount + ' coins below');
+        break;
+      case RIGHT :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          xIndex++;
+          block = coinMap[yIndex][xIndex];
+        }
+        if (DEBUG) console.log(coinsCount + ' coins on the right');
+        break;
+      case UP :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          yIndex--;
+          block = coinMap[yIndex][xIndex];
+        }
+        if (DEBUG) console.log(coinsCount + ' coins above');
+        break;
+      case LEFT :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          xIndex--;
+          block = coinMap[yIndex][xIndex];
+        }
+        if (DEBUG) console.log(coinsCount + ' coins on the left');
+        break;
+    }    
+    return coinsCount;
   }
   
   this.spawn = function(x, y, dir) {
@@ -309,6 +352,10 @@ function Player(name, img) {
 
   this.facingWall = function(callback) {
     callback(facingWall_());
+  };
+
+  this.coinsFaced = function(callback) {
+    callback(coinsFaced_());
   };
 };
 
