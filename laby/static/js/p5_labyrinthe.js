@@ -10,16 +10,19 @@ const _ = 0 // empty square (stoneFloor)
 const C = 1 // gold coin
 const I = 2 // vertical wall
 const H = 3 // horizontal wall
+const X = 4 // Super coin
+const OK = [_, C, X]
+
 var map01 = [
   [I,H,H,H,H,H,H,H,H,I],
-  [I,_,C,_,_,_,_,_,_,I],
-  [I,C,_,_,_,_,_,_,_,I],
+  [I,_,C,_,_,_,_,X,X,I],
+  [I,C,_,_,_,_,_,_,X,I],
   [I,_,_,H,C,C,H,_,_,I],
   [I,_,_,C,C,C,C,_,_,I],
   [I,_,_,C,C,C,C,_,_,I],
   [I,_,_,H,C,C,H,_,_,I],
-  [I,_,_,_,_,_,_,_,C,I],
-  [I,_,_,_,_,_,_,C,_,I],
+  [I,X,_,_,_,_,_,_,C,I],
+  [I,X,X,_,_,_,_,C,_,I],
   [I,I,I,I,I,I,I,I,I,I]
 ]
 
@@ -41,11 +44,13 @@ function preload() {
   astroPng = loadImage('/static/img/astro.png');
   pandaPng = loadImage('/static/img/panda.png');
   coinsPng = loadImage('/static/img/coins.png');
+  superCoinsPng = loadImage('/static/img/super_coins.png');
   stoneFloor = loadImage('/static/img/floor.jpg');
   hWall = loadImage('/static/img/h_wall.jpg');
   vWall = loadImage('/static/img/v_wall.jpg');
   soundFormats('mp3', 'ogg');
   coinSound = loadSound('/static/sounds/coin.mp3');
+  superCoinSound = loadSound('/static/sounds/super_coin.mp3');
 };
 
 function setup() {
@@ -62,7 +67,8 @@ function setup() {
 
 function drawLabi() {
   coinPos = (coinPos + 1)%30
-  coin = coinsPng.get(~~(coinPos/5)*15, 0, 15, 15); // Coin size and offset
+  coin = coinsPng.get(~~(coinPos/5)*15, 0, 15, 15);
+  superCoin = superCoinsPng.get(~~(coinPos/5)*20, 0, 20, 20);
   for (y=0; y<MAP_SIZE; y++) {
     for (x=0; x<MAP_SIZE; x++) {
       switch (coinMap[y][x]) {
@@ -78,6 +84,10 @@ function drawLabi() {
         case C :
           image(stoneFloor, x*BLOCK_SIZE, y*BLOCK_SIZE);
           image(coin, x*BLOCK_SIZE+17, y*BLOCK_SIZE+25)
+          break;
+        case X :
+          image(stoneFloor, x*BLOCK_SIZE, y*BLOCK_SIZE);
+          image(superCoin, x*BLOCK_SIZE+15, y*BLOCK_SIZE+20)
           break;
       };
     }
@@ -104,25 +114,18 @@ function Player(name, img) {
     switch (direction) {
       case DOWN :
         block = coinMap[yIndex+1][xIndex];
-        if ((block != C) && (block != _)) return true;
-        return false;          
         break;
       case RIGHT :
         block = coinMap[yIndex][xIndex+1];
-        if ((block != C) && (block != _)) return true;
-        return false;          
         break;
       case UP :
         block = coinMap[yIndex-1][xIndex];
-        if ((block != C) && (block != _)) return true;
-        return false;          
         break;
       case LEFT :
         block = coinMap[yIndex][xIndex-1];
-        if ((block != C) && (block != _)) return true;
-        return false;          
         break;
     }    
+    return !OK.includes(block);
   }
   
   this.spawn = function(x, y, dir) {
@@ -157,6 +160,18 @@ function Player(name, img) {
         if (coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] == C) {
           coinSound.play();
           coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] = _;
+          if (activePlayer==0)
+            local_score.textContent = int(local_score.textContent)+1;
+          else
+            remote_score.textContent = int(remote_score.textContent)+1;
+        }
+        if (coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] == X) {
+          superCoinSound.play();
+          coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] = _;
+          if (activePlayer==0)
+            local_score.textContent = int(local_score.textContent)+5;
+          else
+            remote_score.textContent = int(remote_score.textContent)+5;
         }
         activePlayer++;
         activePlayer = activePlayer % 2;

@@ -33,6 +33,7 @@ function end_round() {
 
   var formData = new FormData();
   formData.append("round_number", document.getElementById("round-number").textContent);
+  formData.append("score", local_score.textContent);
   formData.append("csrfmiddlewaretoken", document.getElementsByName("csrfmiddlewaretoken")[0].value);
   
   xhttp = new XMLHttpRequest();

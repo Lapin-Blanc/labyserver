@@ -169,6 +169,7 @@ def end_round(request, game_id):
   player = Player.objects.get(id=request.session['player_id'])
   r_num = int(request.POST['round_number'])
   r = g.rounds_set.get(player=player, round_number=r_num);
+  r.score = int(request.POST['score'])
   r.ran = True
   r.save()
   

@@ -51,9 +51,11 @@
 
     <!-- Header -->
     <h2>Partie en cours : 
-        <img class="game-icon" src='{% if position == 0 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'> {{ player }}
+        <img class="game-icon" src='{% if position == 0 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'> 
+        [<span id="local-score">0</span>] {{ player }}
         contre
-        <span id="opponent"></span> <img class="game-icon" src='{% if position == 1 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'>
+        <span id="opponent"></span> [<span id="remote-score">0</span>] 
+        <img class="game-icon" src='{% if position == 1 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'>
     </h2>    
     <hr>
     
@@ -98,6 +100,8 @@
     document.getElementById("javascript-code0").value = code;
     }
     workspace.addChangeListener(myUpdateFunction);
+    var local_score = document.getElementById('local-score');
+    var remote_score = document.getElementById('remote-score');
     
   </script>
   </body>
