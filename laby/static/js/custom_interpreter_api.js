@@ -1,26 +1,8 @@
 ﻿function initAlert(interpreter, scope) {
-  //////////////////////////////////////////////
-  // Alert
-  var wrapper = function(text) {
-    return alert(arguments.length ? text : '');
-  };
-  interpreter.setProperty(scope, 'alert',
-      interpreter.createNativeFunction(wrapper));
-  /*------------------------------------------*/
-
-  ///////////////////////////////////////////////
-  // Prompt
-  var wrapper = function(text)  {
-    return prompt(arguments.length ? text : '');
-  };
-  interpreter.setProperty(scope, 'window.prompt',
-      interpreter.createNativeFunction(wrapper));
-  /*------------------------------------------*/
-
   ///////////////////////////////////////////////
   // Move
   var wrapper = function(callback) {
-    interpreter.player.move(callback);
+    interpreter.laby.movePlayer(interpreter.player, callback);
   }
   interpreter.setProperty(scope, 'move',
       interpreter.createAsyncFunction(wrapper));
@@ -29,7 +11,7 @@
   ///////////////////////////////////////////////
   // Turn
   var wrapper = function(direction, callback) {
-    interpreter.player.turn(direction, callback);
+    interpreter.laby.turnPlayer(interpreter.player, direction, callback);
   }
   interpreter.setProperty(scope, 'turn',
       interpreter.createAsyncFunction(wrapper));
@@ -38,16 +20,16 @@
   ///////////////////////////////////////////////
   // Facing a wall ?
   var wrapper = function(callback) {
-    interpreter.player.facingWall(callback);
+    interpreter.laby.facingWall(interpreter.player, callback);
   }
   interpreter.setProperty(scope, 'facingWall',
       interpreter.createAsyncFunction(wrapper));
   /*------------------------------------------*/
 
   ///////////////////////////////////////////////
-  // Facing a wall ?
+  // Coins in front of player ?
   var wrapper = function(callback) {
-    interpreter.player.coinsFaced(callback);
+    interpreter.laby.coinsFaced(interpreter.player, callback);
   }
   interpreter.setProperty(scope, 'coinsFaced',
       interpreter.createAsyncFunction(wrapper));

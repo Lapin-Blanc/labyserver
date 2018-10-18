@@ -10,10 +10,14 @@ function resetBtn() {
 function parseCode() {
   var code = document.getElementById("javascript-code" + (position==0 ? 0:1)).value;
   interpreter0 = new Interpreter(code, initAlert);
-  interpreter0.player = playerOne; // from p5_labyrinthe.js
+  interpreter0.laby = laby;
+  interpreter0.player = 0;
+  
   var code = document.getElementById('javascript-code' + (position==0 ? 1:0)).value;
   interpreter1 = new Interpreter(code, initAlert);
-  interpreter1.player = playerTwo; // from p5_labyrinthe.js
+  interpreter1.laby = laby;
+  interpreter1.player = 1;
+  
   count0 = count1 = 0;
 }
 

@@ -37,6 +37,8 @@
       var position = {{ position }}
       var local_code = "javascript-code0";
       var remote_code = "javascript-code1";
+      var local_score = document.getElementById("local-score");
+      var remote_score = document.getElementById("remote-score");
     </script>
   </head>
 
@@ -69,10 +71,17 @@
         </tr>
         <tr>
             <td>
-              <textarea id="javascript-code0" class="js-code">{{ code }}</textarea>
+              <textarea id="javascript-code0" class="js-code">{{ code }}turn('left');
+move();
+turn('right');</textarea>
             </td>
           <td>
-              <textarea id="javascript-code1" class="js-code" disabled="disabled">{{ code }}</textarea>
+              <textarea id="javascript-code1" class="js-code">{{ code }}turn('left');
+move();
+move();
+turn('right');
+move();
+turn('left');</textarea>
           </td>
         </tr>
       </table>    

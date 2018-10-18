@@ -48,8 +48,8 @@ Blockly.JavaScript['maze_moveForward'] = function(block) {
 Blockly.Blocks['maze_turn'] = {
   init: function() {
     var DIRECTIONS =
-        [['tourner à gauche ', 'turnLeft'],
-         ['tourner à droite ', 'turnRight']];
+        [['tourner à gauche ', 'left'],
+         ['tourner à droite ', 'right']];
     // Append arrows to direction messages.
     DIRECTIONS[0][0] += Maze.Blocks.LEFT_TURN;
     DIRECTIONS[1][0] += Maze.Blocks.RIGHT_TURN;

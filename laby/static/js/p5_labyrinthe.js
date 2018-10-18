@@ -1,49 +1,183 @@
-const BLOCK_SIZE = 50;
-const MAP_SIZE = 10;
-const UP = 0;
-const RIGHT = 4;
-const DOWN = 8;
-const LEFT = 12;
-const MOVING_FR = 150; // Moving framerate, as high as possible...
+DEBUG = true;
+//~ const MOVING_FR = 150; // Moving framerate, as high as possible...
 const STEP_DELAY = 100 // Time between movements
-const _ = 0 // empty square (stoneFloor)
-const C = 1 // gold coin
-const I = 2 // vertical wall
-const H = 3 // horizontal wall
-const X = 4 // Super coin
-const OK = [_, C, X] // Free spots
-const COINS = [C, X] // Available coins
+var activePlayer = 0;
 
 var map01 = [
-  [I,H,H,H,H,H,H,H,H,I],
-  [I,_,C,_,_,_,_,X,X,I],
-  [I,C,_,_,_,_,_,_,X,I],
-  [I,_,_,H,C,C,H,_,_,I],
-  [I,_,_,C,C,C,C,_,_,I],
-  [I,_,_,C,C,C,C,_,_,I],
-  [I,_,_,H,C,C,H,_,_,I],
-  [I,X,_,_,_,_,_,_,C,I],
-  [I,X,X,_,_,_,_,C,_,I],
-  [I,I,I,I,I,I,I,I,I,I]
+  ['I','H','H','H','H','H','H','H','H','I'],
+  ['I','_','C','_','_','_','_','X','X','I'],
+  ['I','C','_','_','_','_','_','_','X','I'],
+  ['I','_','_','H','C','C','H','_','_','I'],
+  ['I','_','_','C','C','C','C','_','_','I'],
+  ['I','_','_','C','C','C','C','_','_','I'],
+  ['I','_','_','H','C','C','H','_','_','I'],
+  ['I','X','_','_','_','_','_','_','C','I'],
+  ['I','X','X','_','_','_','_','C','_','I'],
+  ['I','I','I','I','I','I','I','I','I','I']
 ]
 
 
-var DEBUG = false;
-// TODO : detect infinite loops --> counting max moves
-// TODO : detect logic bombs --> interpreter stack size
+function Laby(map) {
+  const TILE_SIZE = 50;
+  const OK = ['_','C','X'] // Free spots
+  const COINS = ['C','X'] // Available coins
 
-var img, img1;
-var playerOne;
-var playerTwo;
-var activePlayer = 0;
-var lastPlayer = 1;
-var coinPos = 0;
-var coinMap;
+  var coinPos = 0;
+  
+  this.players = [];
+  this.map = JSON.parse(JSON.stringify(map));
+  this.yBlocks = function() { return this.map.length }
+  this.xBlocks = function() { return this.map[0].length }
+  
+  this.turnPlayer = function(p, dir, callback) {
+    this.players[p].turn(dir, callback);
+  }
+  
+  this.movePlayer = function(pIdx, callback) {
+    var p = this.players[pIdx]
+    if (!this.facingWall(pIdx)) {
+      p.move(TILE_SIZE, collect);
+    } else {
+      callback('blocked')
+      return false;
+    }
+    var o = this;
+    function collect(pX, pY) {
+      var xIndex = p.pX/TILE_SIZE;
+      var yIndex = p.pY/TILE_SIZE;
+      var block = o.map[yIndex][xIndex]
+      switch (block) {
+        case 'C' :
+          o.map[yIndex][xIndex] = '_';
+          coinSound.play();
+          if (pIdx==0)
+            local_score.textContent = int(local_score.textContent)+1;
+          else
+            remote_score.textContent = int(remote_score.textContent)+1;
+          break;
+        case 'X' :
+          o.map[yIndex][xIndex] = '_';
+          superCoinSound.play();
+          if (pIdx==0)
+            local_score.textContent = int(local_score.textContent)+5;
+          else
+            remote_score.textContent = int(remote_score.textContent)+5;
+          break;
+      }
+      callback('moved');
+    }
+  } // End move
+  
+  this.facingWall = function(player, callback) {
+    var p = this.players[player];
+    var xIndex = p.pX/TILE_SIZE;
+    var yIndex = p.pY/TILE_SIZE;
+    
+    switch (p.dir) {
+      case p.DOWN() :
+        block = this.map[yIndex+1][xIndex];
+        break;
+      case p.RIGHT() :
+        block = this.map[yIndex][xIndex+1];
+        break;
+      case p.UP() :
+        block = this.map[yIndex-1][xIndex];
+        break;
+      case p.LEFT() :
+        block = this.map[yIndex][xIndex-1];
+        break;
+    }
+    if (callback) { callback(!OK.includes(block)) };
+    return !OK.includes(block);
+  } // End facingWall
+  
+  this.coinsFaced = function(player, callback) {
+    var p = this.players[player];
+    var xIndex = p.pX/TILE_SIZE;
+    var yIndex = p.pY/TILE_SIZE;
+    
+    var coinsCount = 0;
+    block = this.map[yIndex][xIndex];
+  
+    switch (p.dir) {
+      case p.DOWN() :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          yIndex++;
+          block = this.map[yIndex][xIndex];
+        }
+        break;
+      case p.RIGHT() :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          xIndex++;
+          block = this.map[yIndex][xIndex];
+        }
+        break;
+      case p.UP() :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          yIndex--;
+          block = this.map[yIndex][xIndex];
+        }
+        break;
+      case p.LEFT() :
+        while (OK.includes(block)) {
+          if (COINS.includes(block)) coinsCount++;
+          xIndex--;
+          block = this.map[yIndex][xIndex];
+        }
+        break;
+    }    
+    if (callback) {callback(coinsCount);}
+    return coinsCount;
+  } // End coins faced
+  
+  
+  this.draw = function() {
+    // Draw coins
+    coinPos = (coinPos + 1)%30 // Mod 30 and div 5 to slow down coins rotation
+    coin = coinsPng.get(~~(coinPos/5)*15, 0, 15, 15);
+    superCoin = superCoinsPng.get(~~(coinPos/5)*20, 0, 20, 20);
+    
+    //~ // Draw map
+    for (y=0; y < this.yBlocks(); y++) {
+      for (x=0; x < this.xBlocks(); x++) {
+        switch (this.map[y][x]) {
+          case 'H' :
+            image(hWall, x*TILE_SIZE, y*TILE_SIZE);
+            break;
+          case 'I' :
+            image(vWall, x*TILE_SIZE, y*TILE_SIZE);
+            break;
+          case '_' :
+            image(stoneFloor, x*TILE_SIZE, y*TILE_SIZE);
+            break;
+          case 'C' :
+            image(stoneFloor, x*TILE_SIZE, y*TILE_SIZE);
+            image(coin, x*TILE_SIZE+17, y*TILE_SIZE+25)
+            break;
+          case 'X' :
+            image(stoneFloor, x*TILE_SIZE, y*TILE_SIZE);
+            image(superCoin, x*TILE_SIZE+15, y*TILE_SIZE+20)
+            break;
+        }
+      }
+    }
+    for (x=0; x < this.players.length; x++) {
+      this.players[x].draw();
+    }
+  }
+}
 
+
+
+  /////////////// Canvas /////////////////////
 function preload() {
-  pegmanPng = loadImage('/static/img/pegman.png');
-  astroPng = loadImage('/static/img/astro.png');
-  pandaPng = loadImage('/static/img/panda.png');
+  buzzImg = loadImage('/static/img/buzz_50.png');  
+  woodyImg = loadImage('/static/img/woody_50.png');  
+  aladdinImg = loadImage('/static/img/aladdin_50.png');  
+  jasmineImg = loadImage('/static/img/jasmine_50.png');  
   coinsPng = loadImage('/static/img/coins.png');
   superCoinsPng = loadImage('/static/img/super_coins.png');
   stoneFloor = loadImage('/static/img/floor.jpg');
@@ -52,316 +186,158 @@ function preload() {
   soundFormats('mp3', 'ogg');
   coinSound = loadSound('/static/sounds/coin.mp3');
   superCoinSound = loadSound('/static/sounds/super_coin.mp3');
-};
-
-function setup() {
-  var myCanvas = createCanvas(MAP_SIZE*BLOCK_SIZE, MAP_SIZE*BLOCK_SIZE);
-  background(255, 250, 191);
-  myCanvas.parent('myCanvas');
-  frameRate(MOVING_FR);
-  coinMap = JSON.parse(JSON.stringify(map01));
-  playerOne = new Player("Pegman", pegmanPng);
-  playerTwo = new Player("Astro", astroPng);
-  playerOne.spawn(1, 1, DOWN);
-  playerTwo.spawn(8, 8, UP);
-};
-
-function drawLabi() {
-  coinPos = (coinPos + 1)%30
-  coin = coinsPng.get(~~(coinPos/5)*15, 0, 15, 15);
-  superCoin = superCoinsPng.get(~~(coinPos/5)*20, 0, 20, 20);
-  for (y=0; y<MAP_SIZE; y++) {
-    for (x=0; x<MAP_SIZE; x++) {
-      switch (coinMap[y][x]) {
-        case H :
-          image(hWall, x*BLOCK_SIZE, y*BLOCK_SIZE);
-          break;
-        case I :
-          image(vWall, x*BLOCK_SIZE, y*BLOCK_SIZE);
-          break;
-        case _ :
-          image(stoneFloor, x*BLOCK_SIZE, y*BLOCK_SIZE);
-          break;
-        case C :
-          image(stoneFloor, x*BLOCK_SIZE, y*BLOCK_SIZE);
-          image(coin, x*BLOCK_SIZE+17, y*BLOCK_SIZE+25)
-          break;
-        case X :
-          image(stoneFloor, x*BLOCK_SIZE, y*BLOCK_SIZE);
-          image(superCoin, x*BLOCK_SIZE+15, y*BLOCK_SIZE+20)
-          break;
-      };
-    }
-  }
 }
 
-function Player(name, img) {
-  this.over = false;
-  this.nickname = name;
-  
-  var name = name;
-  var sprite = img;
-  var posX, nPosX, posY, nPosY;
-  var direction, nDirection, dirAngle;
-  var pix;
-  
-  var spawned = function() {
-    return posX != undefined  &&  posY != undefined;
-  };
-    
-  var facingWall_ = function() {
-    xIndex = posX/BLOCK_SIZE;
-    yIndex = posY/BLOCK_SIZE;
-    switch (direction) {
-      case DOWN :
-        block = coinMap[yIndex+1][xIndex];
-        break;
-      case RIGHT :
-        block = coinMap[yIndex][xIndex+1];
-        break;
-      case UP :
-        block = coinMap[yIndex-1][xIndex];
-        break;
-      case LEFT :
-        block = coinMap[yIndex][xIndex-1];
-        break;
-    }    
-    return !OK.includes(block);
-  }
+function setup() {
+  var myCanvas = createCanvas(500, 500);
+  background('navajowhite');
+  myCanvas.parent('myCanvas'); 
+  frameRate(60);
+  aladdin = new Character(aladdinImg, 50, 50, 'DOWN');
+  jasmine = new Character(jasmineImg, 400, 400, 'UP');
+  laby = new Laby(map01);
+  laby.players.push(aladdin);
+  laby.players.push(jasmine);
+}
 
-  var coinsFaced_ = function() {
-    var xIndex = posX/BLOCK_SIZE;
-    var yIndex = posY/BLOCK_SIZE;
-    var coinsCount = 0;
-    block = coinMap[yIndex][xIndex];
-    switch (direction) {
-      case DOWN :
-        while (OK.includes(block)) {
-          if (COINS.includes(block)) coinsCount++;
-          yIndex++;
-          block = coinMap[yIndex][xIndex];
-        }
-        if (DEBUG) console.log(coinsCount + ' coins below');
-        break;
-      case RIGHT :
-        while (OK.includes(block)) {
-          if (COINS.includes(block)) coinsCount++;
-          xIndex++;
-          block = coinMap[yIndex][xIndex];
-        }
-        if (DEBUG) console.log(coinsCount + ' coins on the right');
-        break;
-      case UP :
-        while (OK.includes(block)) {
-          if (COINS.includes(block)) coinsCount++;
-          yIndex--;
-          block = coinMap[yIndex][xIndex];
-        }
-        if (DEBUG) console.log(coinsCount + ' coins above');
-        break;
-      case LEFT :
-        while (OK.includes(block)) {
-          if (COINS.includes(block)) coinsCount++;
-          xIndex--;
-          block = coinMap[yIndex][xIndex];
-        }
-        if (DEBUG) console.log(coinsCount + ' coins on the left');
-        break;
-    }    
-    return coinsCount;
-  }
-  
-  this.spawn = function(x, y, dir) {
-    posX = nPosX = x!=undefined ? x*BLOCK_SIZE:0;
-    posY = nPosY = y!=undefined ? y*BLOCK_SIZE:0;
-    direction = nDirection = dirAngle = dir!=undefined ? dir:DOWN;
-    pix = sprite.get(direction*49, 0, BLOCK_SIZE, BLOCK_SIZE);
-    activePlayer++;
-    activePlayer = activePlayer % 2;
-  };
-  
-  this.move = function(callback) {
-    if (DEBUG) console.log('--' + name + ' moving');
-    if ( !facingWall_()) {
-      switch (direction) {
-        case DOWN :
-          nPosY += BLOCK_SIZE;
-          break;
-        case RIGHT :
-          nPosX += BLOCK_SIZE;
-          break;
-        case UP :
-          nPosY -= BLOCK_SIZE;
-          break;
-        case LEFT :
-          nPosX -= BLOCK_SIZE;
-          break;
-      }    
-    }
-    function myTimer() {
-      if (posX == nPosX && posY == nPosY) {
-        if (coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] == C) {
-          coinSound.play();
-          coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] = _;
-          if (activePlayer==0)
-            local_score.textContent = int(local_score.textContent)+1;
-          else
-            remote_score.textContent = int(remote_score.textContent)+1;
-        }
-        if (coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] == X) {
-          superCoinSound.play();
-          coinMap[posY/BLOCK_SIZE][posX/BLOCK_SIZE] = _;
-          if (activePlayer==0)
-            local_score.textContent = int(local_score.textContent)+5;
-          else
-            remote_score.textContent = int(remote_score.textContent)+5;
-        }
-        activePlayer++;
-        activePlayer = activePlayer % 2;
-        if (DEBUG) console.log('--' + name + 
-          ' moved, now active player is ' + activePlayer);
-        clearTimeout(timer);
-        callback('moved');
-      };
-    };
-    var timer = setInterval(myTimer, 5);
-  };
-  
-  this.turn = function(dir, callback) {
-    if (DEBUG) console.log('--' + name + ' turning');
-    switch (dir) {
-      case 'turnLeft' :
-        switch (direction) {
-          case UP :
-            nDirection = LEFT;
-            break;
-          case LEFT :
-            nDirection = DOWN;
-            break;
-          case DOWN :
-            nDirection = RIGHT;
-            break;
-          case RIGHT :
-            nDirection = UP;
-            break;
-        };
-        break;
-      case 'turnRight' :
-        switch (direction) {
-          case UP :
-            nDirection = RIGHT;
-            break;
-          case RIGHT :
-            nDirection = DOWN;
-            break;
-          case DOWN :
-            nDirection = LEFT;
-            break;
-          case LEFT :
-            nDirection = UP;
-            break;
-        };
-        break;
-    };
-    function myTimer() {
-      if (direction === nDirection) {
-        if (DEBUG) console.log('--' + name + ' turned');
-        activePlayer++;
-        activePlayer = activePlayer % 2;
-        clearTimeout(timer);
-        callback();      
-      };
-    };
-    var timer = setInterval(myTimer, 5);
-  };
-
-  this.draw = function() {
-    if (spawned()) {
-      // Turning
-      if (direction != nDirection) {
-        switch (direction) {
-          case UP : // We're at 0
-            switch (nDirection) {
-              case RIGHT :
-                ++dirAngle;
-                if (dirAngle === RIGHT) direction = nDirection;
-                break;
-              case LEFT :
-                if (dirAngle === 0) dirAngle = 16; // First move to the left
-                --dirAngle;
-                if (dirAngle === LEFT) direction = nDirection;
-                break;
-            };
-            break;
-          
-          case RIGHT : // We're at 4
-            switch (nDirection) {
-              case DOWN :
-                ++dirAngle;
-                if (dirAngle === DOWN) direction = nDirection;
-                break;
-              case UP :
-                --dirAngle;
-                if (dirAngle === UP) direction = nDirection;
-                break;
-            };
-            break;
-
-          case DOWN : // We're at 8
-            switch (nDirection) {
-              case LEFT :
-                ++dirAngle;
-                if (dirAngle === LEFT) direction = nDirection;
-                break;
-              case RIGHT :
-                --dirAngle;
-                if (dirAngle === RIGHT) direction = nDirection;
-                break;
-            };
-            break;
-
-          case LEFT : // We're at 12
-            switch (nDirection) {
-              case UP :
-                ++dirAngle;
-                if (dirAngle === 16) { // Last move to the right
-                  dirAngle = 0;
-                  direction = nDirection; // We're at UP
-                };
-                break;
-              case DOWN :
-                --dirAngle;
-                if (dirAngle === DOWN) direction = nDirection;
-                break;
-            };
-            break;
-        };
-        pix = sprite.get(dirAngle*49, 0, BLOCK_SIZE, BLOCK_SIZE); // rotate
-      };
-      
-      // Moving
-      if (posX < nPosX) posX++;
-      if (posY < nPosY) posY++;
-      if (posX > nPosX) posX--;
-      if (posY > nPosY) posY--;
-      
-      // Actually drawing the cropped image
-      image(pix, posX, posY, BLOCK_SIZE, BLOCK_SIZE)
-    };
-  };
-
-  this.facingWall = function(callback) {
-    callback(facingWall_());
-  };
-
-  this.coinsFaced = function(callback) {
-    callback(coinsFaced_());
-  };
-};
-
-// Drawing main canvas
 function draw() {
-  drawLabi();
-  if (playerOne) playerOne.draw();
-  if (playerTwo) playerTwo.draw();
-};
+  background('navajowhite');
+  laby.draw();
+}
+
+
+
+function Character(sprite, posX, posY, direction, nbHPix, nbVPix ) {
+// Image préchargée, nombre de sprite horizontaux, verticaux
+// position 'UP', 'DOWN', 'LEFT', 'RIGHT'
+// et direction de départ
+  var sprite = sprite;
+
+  this.pX = this.nPosX = posX ? posX:0;
+  this.pY = this.nPosY = posY ? posY:0;
+  this.dir = this.nDir = direction ? ['DOWN', 'RIGHT', 'UP', 'LEFT'].indexOf(direction)*10:DOWN;
+  this.nbHPix = nbHPix ? nbHPix : 8;
+  this.nbVPix = nbVPix ? nbVPix : 5;
+  this.nbPix = function() {return this.nbHPix*this.nbVPix};
+  this.pixWidth = function() { return ~~(sprite.width/this.nbHPix)};
+  this.pixHeight = function() { return ~~(sprite.height/this.nbVPix)};
+
+  this.DOWN = function() { return this.nbPix()*0/4; }
+  this.RIGHT = function() { return this.nbPix()*1/4; }
+  this.UP = function() { return this.nbPix()*2/4; }
+  this.LEFT = function() { return this.nbPix()*3/4; }
+
+  var turningTo = 'left';
+  var busy = false;
+
+// For saving character state into server
+  this.backup = function() {return JSON.stringify(this);};
+  this.restore = function(json) { Object.assign(this, JSON.parse(json));};
+  
+  this.draw = function() {
+    // Have to turn
+    if (this.dir!=this.nDir) {
+      switch (turningTo) {
+        case 'left' :
+          this.dir++;
+          if (this.dir==this.nbPix()) this.dir = 0;
+          break;
+        case 'right' :
+          if (this.dir==0) this.dir = this.nbPix();
+          this.dir--;
+          break;
+      }
+    }
+    // Have to move
+    if (this.pX < this.nPosX) this.pX++;
+    if (this.pY < this.nPosY) this.pY++;
+    if (this.pX > this.nPosX) this.pX--;
+    if (this.pY > this.nPosY) this.pY--;
+    
+    // Draw image
+    image(sprite, this.pX, this.pY, this.pixWidth(), this.pixHeight(), (this.dir%this.nbHPix)*this.pixWidth(), ~~(this.dir/this.nbHPix)*this.pixHeight(), this.pixWidth(), this.pixHeight());
+  }
+  
+  /////////////// want to turn //////////////////////
+  this.turn = function(to, callback) {
+    this.busy = true;
+    turningTo = to;
+    switch (to) {
+      case 'left' :
+        switch (this.dir) {
+          case this.DOWN() : this.nDir = this.RIGHT();
+            break;
+          case this.RIGHT() : this.nDir = this.UP();
+            break;
+          case this.UP() : this.nDir = this.LEFT();
+            break;
+          case this.LEFT() : this.nDir = this.DOWN();
+            break;
+        }
+        break;
+      case 'right' :
+        switch (this.dir) {
+          case this.DOWN() : this.nDir = this.LEFT();
+            break;
+          case this.LEFT() : this.nDir = this.UP();
+            break;
+          case this.UP() : this.nDir = this.RIGHT();
+            break;
+          case this.RIGHT() : this.nDir = this.DOWN();
+            break;
+        }
+        break;
+    }
+    if (callback) {
+      var c = this;
+      var wait = function (cb) {
+        if (c.dir != c.nDir) {
+          setTimeout(wait, 5, cb)
+        }
+        else {
+          c.busy = false;
+          activePlayer++;
+          activePlayer = activePlayer % 2;
+          cb('turned')
+        }
+      }
+      wait(callback);
+    }
+  }
+  ////////////// Turned //////////////////////
+  
+  /////////////// Movement asked /////////////
+  this.move = function(distance, callback) {
+    this.busy = true;
+    switch (this.dir) {
+      case this.DOWN() :
+        this.nPosY += distance;
+        break;
+      case this.RIGHT() :
+        this.nPosX += distance;
+        break;
+      case this.UP() :
+        this.nPosY -= distance;
+        break;
+      case this.LEFT() :
+        this.nPosX -= distance;
+        break;
+    }    
+    if (callback) {
+      var c = this;
+      var wait = function (cb) {
+        if ((c.pX != c.nPosX) || (c.pY != c.nPosY)) {
+          setTimeout(wait, 5, cb)
+        }
+        else {
+          this.busy = false;
+          activePlayer++;
+          activePlayer = activePlayer % 2;
+          cb(c.pX, c.pY)
+        }
+      }
+      wait(callback);
+    }
+  }
+  /////////////// Moved //////////////////////
+}
