@@ -22,12 +22,12 @@ function Laby(map) {
   const OK = ['_','C','X'] // Free spots
   const COINS = ['C','X'] // Available coins
 
-  var coinPos = 0;
+  var coinPos = 0; // initialize coin rotation index
   
   this.players = [];
   this.map = JSON.parse(JSON.stringify(map));
-  this.yBlocks = function() { return this.map.length }
-  this.xBlocks = function() { return this.map[0].length }
+  this.yBlocks = this.map.length;
+  this.xBlocks = this.map[0].length;
   
   this.turnPlayer = function(p, dir, callback) {
     this.players[p].turn(dir, callback);
@@ -74,16 +74,16 @@ function Laby(map) {
     var yIndex = p.pY/TILE_SIZE;
     
     switch (p.dir) {
-      case p.DOWN() :
+      case p.DOWN :
         block = this.map[yIndex+1][xIndex];
         break;
-      case p.RIGHT() :
+      case p.RIGHT :
         block = this.map[yIndex][xIndex+1];
         break;
-      case p.UP() :
+      case p.UP :
         block = this.map[yIndex-1][xIndex];
         break;
-      case p.LEFT() :
+      case p.LEFT :
         block = this.map[yIndex][xIndex-1];
         break;
     }
@@ -100,28 +100,28 @@ function Laby(map) {
     block = this.map[yIndex][xIndex];
   
     switch (p.dir) {
-      case p.DOWN() :
+      case p.DOWN :
         while (OK.includes(block)) {
           if (COINS.includes(block)) coinsCount++;
           yIndex++;
           block = this.map[yIndex][xIndex];
         }
         break;
-      case p.RIGHT() :
+      case p.RIGHT :
         while (OK.includes(block)) {
           if (COINS.includes(block)) coinsCount++;
           xIndex++;
           block = this.map[yIndex][xIndex];
         }
         break;
-      case p.UP() :
+      case p.UP :
         while (OK.includes(block)) {
           if (COINS.includes(block)) coinsCount++;
           yIndex--;
           block = this.map[yIndex][xIndex];
         }
         break;
-      case p.LEFT() :
+      case p.LEFT :
         while (OK.includes(block)) {
           if (COINS.includes(block)) coinsCount++;
           xIndex--;
@@ -141,8 +141,8 @@ function Laby(map) {
     superCoin = superCoinsPng.get(~~(coinPos/5)*20, 0, 20, 20);
     
     //~ // Draw map
-    for (y=0; y < this.yBlocks(); y++) {
-      for (x=0; x < this.xBlocks(); x++) {
+    for (y=0; y < this.yBlocks; y++) {
+      for (x=0; x < this.xBlocks; x++) {
         switch (this.map[y][x]) {
           case 'H' :
             image(hWall, x*TILE_SIZE, y*TILE_SIZE);
@@ -174,10 +174,11 @@ function Laby(map) {
 
   /////////////// Canvas /////////////////////
 function preload() {
-  buzzImg = loadImage('/static/img/buzz_50.png');  
-  woodyImg = loadImage('/static/img/woody_50.png');  
-  aladdinImg = loadImage('/static/img/aladdin_50.png');  
-  jasmineImg = loadImage('/static/img/jasmine_50.png');  
+  pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
+  astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
+  //~ jasmine = new Character(400, 50, 'down', '/static/img/jasmine_50.png', 0, false, 8, 5);
+  //~ aladdin = new Character(50, 400, 'up', '/static/img/aladdin_50.png', 0, false, 8, 5);
+
   coinsPng = loadImage('/static/img/coins.png');
   superCoinsPng = loadImage('/static/img/super_coins.png');
   stoneFloor = loadImage('/static/img/floor.jpg');
@@ -186,18 +187,19 @@ function preload() {
   soundFormats('mp3', 'ogg');
   coinSound = loadSound('/static/sounds/coin.mp3');
   superCoinSound = loadSound('/static/sounds/super_coin.mp3');
+  
+  laby = new Laby(map01);
 }
 
 function setup() {
   var myCanvas = createCanvas(500, 500);
   background('navajowhite');
   myCanvas.parent('myCanvas'); 
-  frameRate(60);
-  aladdin = new Character(aladdinImg, 50, 50, 'DOWN');
-  jasmine = new Character(jasmineImg, 400, 400, 'UP');
-  laby = new Laby(map01);
-  laby.players.push(aladdin);
-  laby.players.push(jasmine);
+  frameRate(20);
+  laby.players.push(pegman);
+  //~ laby.players.push(aladdin);
+  //~ laby.players.push(jasmine);
+  laby.players.push(astro);
 }
 
 function draw() {
@@ -207,45 +209,71 @@ function draw() {
 
 
 
-function Character(sprite, posX, posY, direction, nbHPix, nbVPix ) {
+function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nbHPix, nbVPix ) {
 // Image préchargée, nombre de sprite horizontaux, verticaux
 // position 'UP', 'DOWN', 'LEFT', 'RIGHT'
 // et direction de départ
-  var sprite = sprite;
 
-  this.pX = this.nPosX = posX ? posX:0;
-  this.pY = this.nPosY = posY ? posY:0;
-  this.dir = this.nDir = direction ? ['DOWN', 'RIGHT', 'UP', 'LEFT'].indexOf(direction)*10:DOWN;
-  this.nbHPix = nbHPix ? nbHPix : 8;
-  this.nbVPix = nbVPix ? nbVPix : 5;
-  this.nbPix = function() {return this.nbHPix*this.nbVPix};
-  this.pixWidth = function() { return ~~(sprite.width/this.nbHPix)};
-  this.pixHeight = function() { return ~~(sprite.height/this.nbVPix)};
+  this.pX = this.nPosX = posX ? posX : 0;
+  this.pY = this.nPosY = posY ? posY : 0;
 
-  this.DOWN = function() { return this.nbPix()*0/4; }
-  this.RIGHT = function() { return this.nbPix()*1/4; }
-  this.UP = function() { return this.nbPix()*2/4; }
-  this.LEFT = function() { return this.nbPix()*3/4; }
+  var downIndex = downIndex ? downIndex : 0;
+  var nbHPix = nbHPix ? nbHPix : 8;
+  var nbVPix = nbVPix ? nbVPix : 5;
+  var nbPix = nbHPix * nbVPix; // 40
+  var downIndex = downIndex ? downIndex : 0;
+  
+  var x = downIndex+nbPix;
+  var clockDir = (clockWise) ? -1:1 ;
+  this.DOWN =  x % nbPix ; x = x + clockDir*nbPix/4;
+  this.RIGHT = x % nbPix ; x = x + clockDir*nbPix/4;
+  this.UP =    x % nbPix ; x = x + clockDir*nbPix/4;
+  this.LEFT =  x % nbPix ; x = x + clockDir*nbPix/4;
+  
+  switch (direction) {
+    case 'down' :
+      this.dir = this.DOWN;
+      break;
+    case 'right' :
+      this.dir = this.RIGHT;
+      break;
+    case 'up' :
+      this.dir = this.UP;
+      break;
+    case 'left' :
+      this.dir = this.LEFT;
+      break;
+    default :
+      this.dir = this.DOWN;    
+  }
+  this.nDir = this.dir;
+  var pixWidth;
+  var pixHeight;
 
-  var turningTo = 'left';
-  var busy = false;
+  var sprite = loadImage(spriteImgUrl, successCb);
+
+  function successCb(img) {
+    pixWidth = ~~(img.width/nbHPix);
+    pixHeight = ~~(img.height/nbVPix);
+  }
+
+  var turningTo;
 
 // For saving character state into server
   this.backup = function() {return JSON.stringify(this);};
-  this.restore = function(json) { Object.assign(this, JSON.parse(json));};
+  this.restore = function(json) { 
+    Object.assign(this, JSON.parse(json));    
+  };
   
   this.draw = function() {
     // Have to turn
-    if (this.dir!=this.nDir) {
-      switch (turningTo) {
-        case 'left' :
+    if (this.dir != this.nDir) {
+      if ( ((turningTo=='left') && (clockDir==1)) || ((turningTo=='right') && (clockDir==-1)) ) {
           this.dir++;
-          if (this.dir==this.nbPix()) this.dir = 0;
-          break;
-        case 'right' :
-          if (this.dir==0) this.dir = this.nbPix();
+          if (this.dir==nbPix) this.dir = 0;
+      } else {
+          if (this.dir==0) this.dir = nbPix;
           this.dir--;
-          break;
       }
     }
     // Have to move
@@ -255,50 +283,48 @@ function Character(sprite, posX, posY, direction, nbHPix, nbVPix ) {
     if (this.pY > this.nPosY) this.pY--;
     
     // Draw image
-    image(sprite, this.pX, this.pY, this.pixWidth(), this.pixHeight(), (this.dir%this.nbHPix)*this.pixWidth(), ~~(this.dir/this.nbHPix)*this.pixHeight(), this.pixWidth(), this.pixHeight());
+    image(sprite, this.pX, this.pY, pixWidth, pixHeight, (this.dir%nbHPix)*pixWidth, ~~(this.dir/nbHPix)*pixHeight, pixWidth, pixHeight);
   }
   
   /////////////// want to turn //////////////////////
   this.turn = function(to, callback) {
-    this.busy = true;
     turningTo = to;
     switch (to) {
       case 'left' :
         switch (this.dir) {
-          case this.DOWN() : this.nDir = this.RIGHT();
+          case this.DOWN : this.nDir = this.RIGHT;
             break;
-          case this.RIGHT() : this.nDir = this.UP();
+          case this.RIGHT : this.nDir = this.UP;
             break;
-          case this.UP() : this.nDir = this.LEFT();
+          case this.UP : this.nDir = this.LEFT;
             break;
-          case this.LEFT() : this.nDir = this.DOWN();
+          case this.LEFT : this.nDir = this.DOWN;
             break;
         }
         break;
       case 'right' :
         switch (this.dir) {
-          case this.DOWN() : this.nDir = this.LEFT();
+          case this.DOWN : this.nDir = this.LEFT;
             break;
-          case this.LEFT() : this.nDir = this.UP();
+          case this.LEFT : this.nDir = this.UP;
             break;
-          case this.UP() : this.nDir = this.RIGHT();
+          case this.UP : this.nDir = this.RIGHT;
             break;
-          case this.RIGHT() : this.nDir = this.DOWN();
+          case this.RIGHT : this.nDir = this.DOWN;
             break;
         }
         break;
     }
     if (callback) {
-      var c = this;
-      var wait = function (cb) {
-        if (c.dir != c.nDir) {
-          setTimeout(wait, 5, cb)
+      var that = this;
+      var wait = function () {
+        if (that.dir != that.nDir) {
+          setTimeout(wait, 5)
         }
         else {
-          c.busy = false;
           activePlayer++;
           activePlayer = activePlayer % 2;
-          cb('turned')
+          callback(that.dir)
         }
       }
       wait(callback);
@@ -308,35 +334,33 @@ function Character(sprite, posX, posY, direction, nbHPix, nbVPix ) {
   
   /////////////// Movement asked /////////////
   this.move = function(distance, callback) {
-    this.busy = true;
     switch (this.dir) {
-      case this.DOWN() :
+      case this.DOWN :
         this.nPosY += distance;
         break;
-      case this.RIGHT() :
+      case this.RIGHT :
         this.nPosX += distance;
         break;
-      case this.UP() :
+      case this.UP :
         this.nPosY -= distance;
         break;
-      case this.LEFT() :
+      case this.LEFT :
         this.nPosX -= distance;
         break;
     }    
     if (callback) {
-      var c = this;
-      var wait = function (cb) {
-        if ((c.pX != c.nPosX) || (c.pY != c.nPosY)) {
-          setTimeout(wait, 5, cb)
+      var that = this;
+      var wait = function () {
+        if ((that.pX != that.nPosX) || (that.pY != that.nPosY)) {
+          setTimeout(wait, 5)
         }
         else {
-          this.busy = false;
           activePlayer++;
           activePlayer = activePlayer % 2;
-          cb(c.pX, c.pY)
+          callback(that.pX, that.pY)
         }
       }
-      wait(callback);
+      wait();
     }
   }
   /////////////// Moved //////////////////////
