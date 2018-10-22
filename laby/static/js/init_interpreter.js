@@ -23,19 +23,19 @@ function parseCode() {
 
 function r0() {
 	if ( (count0>0) && (count1>0) ) {
-		console.log('-> Round over, next player = ' + activePlayer);
+		console.log('-> Round over, next player = ' + laby.activePlayer);
         end_round();
 		return;
     }
-    if (activePlayer == 0) {
+    if (laby.activePlayer == 0) {
       if (interpreter0.run()) {
         count0 = 0;
         setTimeout(r0, 1)
       } else {
         count0++;
-        activePlayer = (activePlayer+1)%2
+        laby.activePlayer = (laby.activePlayer+1)%2
         if (DEBUG) console.log('c0 = ' + count0 + 
-          ' calling r1 with active player ' + activePlayer);
+          ' calling r1 with active player ' + laby.activePlayer);
         setTimeout(r1, STEP_DELAY)
       }
     } else {		
@@ -45,19 +45,19 @@ function r0() {
 }
 function r1() {
 	if ( (count0>0) && (count1>0) ) {
-		console.log('-> Round over, next player = ' + activePlayer);
+		console.log('-> Round over, next player = ' + laby.activePlayer);
         end_round();
 		return;
     }
-    if (activePlayer == 1) {
+    if (laby.activePlayer == 1) {
       if (interpreter1.run()) {
         count1 = 0;
         setTimeout(r1, 1)
       } else {
         count1++;
-        activePlayer = (activePlayer+1)%2
+        laby.activePlayer = (laby.activePlayer+1)%2
         if (DEBUG) console.log(' c1 = ' + count1 +
-          ' calling r0 with active player ' + activePlayer);
+          ' calling r0 with active player ' + laby.activePlayer);
         setTimeout(r1, STEP_DELAY)
       }
     } else {		

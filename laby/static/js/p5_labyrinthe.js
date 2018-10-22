@@ -1,7 +1,6 @@
 DEBUG = true;
-//~ const MOVING_FR = 150; // Moving framerate, as high as possible...
-const STEP_DELAY = 100 // Time between movements
-var activePlayer = 0;
+const STEP_DELAY = 500 // Time between movements
+var laby;
 
 var map01 = [
   ['I','H','H','H','H','H','H','H','H','I'],
@@ -17,6 +16,43 @@ var map01 = [
 ]
 
 
+
+
+  /////////////// Canvas /////////////////////
+function preload() {
+  pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
+  astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
+  //~ jasmine = new Character(400, 50, 'down', '/static/img/jasmine_50.png', 0, false, 8, 5);
+  //~ aladdin = new Character(50, 400, 'up', '/static/img/aladdin_50.png', 0, false, 8, 5);
+
+  coinsPng = loadImage('/static/img/coins.png');
+  superCoinsPng = loadImage('/static/img/super_coins.png');
+  stoneFloor = loadImage('/static/img/floor.jpg');
+  hWall = loadImage('/static/img/h_wall.jpg');
+  vWall = loadImage('/static/img/v_wall.jpg');
+  soundFormats('mp3', 'ogg');
+  coinSound = loadSound('/static/sounds/coin.mp3');
+  superCoinSound = loadSound('/static/sounds/super_coin.mp3');
+  
+  laby = new Laby(map01);
+}
+
+function setup() {
+  var myCanvas = createCanvas(500, 500);
+  background('navajowhite');
+  myCanvas.parent('myCanvas'); 
+  frameRate(20);
+  laby.players.push(pegman);
+  //~ laby.players.push(aladdin);
+  //~ laby.players.push(jasmine);
+  laby.players.push(astro);
+}
+
+function draw() {
+  background('navajowhite');
+  laby.draw();
+}
+
 function Laby(map) {
   const TILE_SIZE = 50;
   const OK = ['_','C','X'] // Free spots
@@ -25,12 +61,18 @@ function Laby(map) {
   var coinPos = 0; // initialize coin rotation index
   
   this.players = [];
+  this.activePlayer = 0;
   this.map = JSON.parse(JSON.stringify(map));
   this.yBlocks = this.map.length;
   this.xBlocks = this.map[0].length;
   
   this.turnPlayer = function(p, dir, callback) {
-    this.players[p].turn(dir, callback);
+    this.players[p].turn(dir, sw);
+    function sw() {
+      this.activePlayer = (this.activePlayer+1) % 2;
+      callback(true);
+      return true;
+    }
   }
   
   this.movePlayer = function(pIdx, callback) {
@@ -38,7 +80,8 @@ function Laby(map) {
     if (!this.facingWall(pIdx)) {
       p.move(TILE_SIZE, collect);
     } else {
-      callback('blocked')
+      this.activePlayer = (this.activePlayer+1) % 2;
+      callback(false);
       return false;
     }
     var o = this;
@@ -64,7 +107,10 @@ function Laby(map) {
             remote_score.textContent = int(remote_score.textContent)+5;
           break;
       }
-      callback('moved');
+      o.activePlayer = (o.activePlayer+1) % 2;
+      console.log('player switched to %s', o.activePlayer);
+      callback(true);
+      return true;
     }
   } // End move
   
@@ -169,44 +215,6 @@ function Laby(map) {
     }
   }
 }
-
-
-
-  /////////////// Canvas /////////////////////
-function preload() {
-  pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
-  astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
-  //~ jasmine = new Character(400, 50, 'down', '/static/img/jasmine_50.png', 0, false, 8, 5);
-  //~ aladdin = new Character(50, 400, 'up', '/static/img/aladdin_50.png', 0, false, 8, 5);
-
-  coinsPng = loadImage('/static/img/coins.png');
-  superCoinsPng = loadImage('/static/img/super_coins.png');
-  stoneFloor = loadImage('/static/img/floor.jpg');
-  hWall = loadImage('/static/img/h_wall.jpg');
-  vWall = loadImage('/static/img/v_wall.jpg');
-  soundFormats('mp3', 'ogg');
-  coinSound = loadSound('/static/sounds/coin.mp3');
-  superCoinSound = loadSound('/static/sounds/super_coin.mp3');
-  
-  laby = new Laby(map01);
-}
-
-function setup() {
-  var myCanvas = createCanvas(500, 500);
-  background('navajowhite');
-  myCanvas.parent('myCanvas'); 
-  frameRate(20);
-  laby.players.push(pegman);
-  //~ laby.players.push(aladdin);
-  //~ laby.players.push(jasmine);
-  laby.players.push(astro);
-}
-
-function draw() {
-  background('navajowhite');
-  laby.draw();
-}
-
 
 
 function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nbHPix, nbVPix ) {
@@ -319,11 +327,9 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
       var that = this;
       var wait = function () {
         if (that.dir != that.nDir) {
-          setTimeout(wait, 5)
+          setTimeout(wait, 1)
         }
         else {
-          activePlayer++;
-          activePlayer = activePlayer % 2;
           callback(that.dir)
         }
       }
@@ -355,8 +361,6 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
           setTimeout(wait, 5)
         }
         else {
-          activePlayer++;
-          activePlayer = activePlayer % 2;
           callback(that.pX, that.pY)
         }
       }
