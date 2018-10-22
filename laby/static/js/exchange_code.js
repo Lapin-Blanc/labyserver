@@ -16,7 +16,7 @@ function exchange_code() {
         if (DEBUG) console.log(msg.status);
         document.getElementById(remote_code).value = msg.code;
         parseCode();
-        r0();
+        t(0);
     } else if (this.status == 202) {
         msg = JSON.parse(this.responseText);
         if (DEBUG) console.log("Status de la réponse: %d (%s)", this.status, msg.status);

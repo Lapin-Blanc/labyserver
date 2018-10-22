@@ -1,5 +1,6 @@
 ﻿var interpreter0;
 var interpreter1;
+var interpreters;
 var count0;
 var count1;
 
@@ -19,6 +20,21 @@ function parseCode() {
   interpreter1.player = 1;
   
   count0 = count1 = 0;
+  interpreters = [interpreter0, interpreter1];
+}
+
+function t(i) {
+  interpreters[i].run();
+	function w() {
+    if (laby.activePlayer == i) {
+      setTimeout(w, 10)
+    } else {
+      i = (i+1)%2;
+      setTimeout(t, 1000, i);
+      console.log('Finished for %s ', i)
+    }
+  }
+	w();
 }
 
 function r0() {

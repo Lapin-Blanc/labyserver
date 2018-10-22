@@ -20,8 +20,6 @@ var map01 = [
 
   /////////////// Canvas /////////////////////
 function preload() {
-  pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
-  astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
   //~ jasmine = new Character(400, 50, 'down', '/static/img/jasmine_50.png', 0, false, 8, 5);
   //~ aladdin = new Character(50, 400, 'up', '/static/img/aladdin_50.png', 0, false, 8, 5);
 
@@ -34,6 +32,8 @@ function preload() {
   coinSound = loadSound('/static/sounds/coin.mp3');
   superCoinSound = loadSound('/static/sounds/super_coin.mp3');
   
+  pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
+  astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
   laby = new Laby(map01);
 }
 
@@ -68,8 +68,11 @@ function Laby(map) {
   
   this.turnPlayer = function(p, dir, callback) {
     this.players[p].turn(dir, sw);
+    var that = this;
     function sw() {
-      this.activePlayer = (this.activePlayer+1) % 2;
+      console.log('switching player from %s', that.activePlayer);
+      that.activePlayer = (that.activePlayer+1) % 2;
+      console.log('to %s', that.activePlayer);
       callback(true);
       return true;
     }
@@ -179,6 +182,19 @@ function Laby(map) {
     return coinsCount;
   } // End coins faced
   
+  this.save = function() {
+    return JSON.stringify(this)
+  }
+  
+  this.restore = function(json) {
+    o = JSON.parse(json);
+    ps = o.players;
+    delete o.players;
+    Object.assign(this, o);
+    for (x=0; x < ps.length; x++) {
+      Object.assign(this.players[x], ps[x])
+    }
+  }
   
   this.draw = function() {
     // Draw coins
@@ -327,7 +343,7 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
       var that = this;
       var wait = function () {
         if (that.dir != that.nDir) {
-          setTimeout(wait, 1)
+          setTimeout(wait, 5)
         }
         else {
           callback(that.dir)
