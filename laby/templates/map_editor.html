@@ -11,25 +11,7 @@
     <script src='{% static "third-party/p5/p5.js" %}'></script>
     <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
     <script src='{% static "js/p5_labyrinthe.js" %}'></script>
-
-    <script src='{% static "third-party/interpreter/acorn_interpreter.js" %}'></script>
-    <script src='{% static "third-party/interpreter/interpreter.js" %}'></script>
-    <!-- inclusion order is important -->
-    <script src='{% static "js/custom_interpreter_api.js" %}'></script>
-    <script src='{% static "js/init_interpreter.js" %}'></script>
-       
-    <!-- Blockly -->
-    <script src='{% static "third-party/blockly/blockly_compressed.js" %}'></script>
-    <script src='{% static "third-party/blockly/blocks_compressed.js" %}'></script>
-    <script src='{% static "third-party/blockly/msg/js/fr.js" %}'></script>
-    <!-- Generated language -->
-    <script src='{% static "third-party/blockly/javascript_compressed.js" %}'></script>
-    <!-- Custom blockly elements -->
-    <script src='{% static "js/blocks.js" %}'></script>
-    <script src='{% static "js/my_toolbox.js" %}'></script>
-    <!-- Functionnal game/user management -->
-    <script src='{% static "js/keep_alive.js" %}'></script>
-    <script src='{% static "js/exchange_code.js" %}'></script>
+<!--
     <script>
       var keep_alive_url = "{% url 'laby:keep_alive' game.id %}";
       var exchange_code_url = "{% url 'laby:exchange_code' game.id %}";
@@ -39,8 +21,8 @@
       var remote_code = "javascript-code1";
       var local_score = document.getElementById("local-score");
       var remote_score = document.getElementById("remote-score");
-      var map_layout = '{{ map|safe }}';
     </script>
+-->
   </head>
 
   <body>

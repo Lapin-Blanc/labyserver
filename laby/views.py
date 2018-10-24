@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.db import IntegrityError
 from django.utils import timezone
 
-from .models import Game, Rounds, Player
+from .models import Game, Rounds, Player, Map
 
 # Login and logout ###################
 def login(request):
@@ -43,7 +43,11 @@ def logout(request):
 def index(request):
   try:
     p = get_object_or_404(Player, id=request.session['player_id'])
-    return render(request, 'index.html', {'player' : p})
+    map_list = Map.objects.all();
+    return render(request, 'index.html', {
+          'player' : p,
+          'map_list' : map_list,
+          })
   except KeyError:
     return HttpResponseRedirect(reverse('laby:login',))
 # End login and logout ################
@@ -56,7 +60,12 @@ def game_list(request):
   
 def create_game(request):
   player = Player.objects.get(id=request.session['player_id'])
-  new_game = Game(name=request.POST['gamename'], p1 = player)
+  new_map = Map.objects.get(map_name=request.POST['map-choice'])
+  new_game = Game(
+      name=request.POST['game-name'],
+      p1 = player,
+      game_map = new_map,
+      )
   if len(new_game.name) < 5:
     return render(request, 'index.html', {
         'error_message': "Le nom de la partie doit faire au moins 5 caractères"
@@ -96,6 +105,7 @@ def join_game(request, game_id):
     'game' : g,
     'player' : player,
     'position' : pos,
+    'map' : g.game_map.layout,
   }
   return render(request, 'game_board.html', ctxt)
 
@@ -189,3 +199,20 @@ def end_round(request, game_id):
       }, status=202)
   return response
   
+# Maps management #########################
+def map_list(request):
+  ctxt = {}
+  map_list = Map.objects.all()
+  ctxt['map_list'] = map_list
+  return render(request, 'map_list.html', ctxt)
+
+def create_map(request):
+  if request.method == 'POST' :
+    map_name = request.POST['map-name']
+    layout = request.POST['layout']
+    m = Map(map_name = map_name, layout=layout)
+    m.save()
+    return HttpResponseRedirect(reverse('laby:index'))
+  else :
+    return render(request, 'create_map.html')
+    

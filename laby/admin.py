@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Game, Rounds
+from .models import Game, Rounds, Map, Player
 # Register your models here.
 
 class RoundsInline(admin.TabularInline):
@@ -15,3 +15,11 @@ class GameAdmin(admin.ModelAdmin):
 @admin.register(Rounds)
 class RoundsAdmin(admin.ModelAdmin):
   pass
+
+@admin.register(Map)
+class RoundsAdmin(admin.ModelAdmin):
+  list_display = ['map_name']
+
+@admin.register(Player)
+class RoundsAdmin(admin.ModelAdmin):
+  list_display = ['nickname']

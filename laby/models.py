@@ -10,6 +10,17 @@ class Player(models.Model):
   def __str__(self):
     return "{}".format(self.nickname)
 
+# Maps ##################
+class Map(models.Model):
+  map_name = models.CharField('Nom de la carte', max_length=20, unique=True)
+  layout = models.TextField('Disposition', blank=True, default='')
+
+  class Meta:
+    verbose_name = 'carte'
+
+  def __str__(self):
+    return "{}".format(self.map_name)
+
 # Game ##################
 class Game(models.Model):
   name = models.CharField('Nom de la partie', max_length=50, unique=True, blank=False, null=False)
@@ -26,6 +37,7 @@ class Game(models.Model):
         related_name = 'game_p2')
   time_created = models.DateTimeField('Date de création', auto_now_add=True)
   time_modified = models.DateTimeField('Dernière modification', auto_now=True)
+  game_map = models.ForeignKey(Map, on_delete=models.CASCADE)
      
   def last_round(self):
     rounds = self.rounds_set.all()

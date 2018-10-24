@@ -1,7 +1,8 @@
-  {% if game_list %}
+{% if game_list %}
   <table class="game-list">
     <tr>
       <th>Nom du jeu</th>
+      <th>Carte</th>
       <th>Joueur un</th>
       <th>Joueur deux</th>
       <th>Créé le</th>
@@ -9,6 +10,7 @@
     {% for game in game_list %}
     <tr>
       <td><a href="{% url 'laby:join_game' game.id %}">{{ game.name }}</a></td>
+      <td>{{ game.game_map }}</td>
       <td>{{ game.p1|default_if_none:"" }}</td>
       <td>{{ game.p2|default_if_none:"" }}</td>
       <td>{{ game.time_created }}</td>
@@ -17,4 +19,4 @@
   </table>
   {% else %}
       <p>Pas de partie en cours</p>
-  {% endif %}
+{% endif %}

@@ -42,9 +42,18 @@
 
     <form action="{% url 'laby:create_game' %}" method="post">
     {% csrf_token %}
-        <label for="gamename">Nom de la partie : </label>
-        <input type="text" name="gamename" id="gamename">
-        <input type="submit" value="Créer">
+        <label for="game-name">Nom de la partie : </label>
+        <input type="text" name="game-name" id="game-name">
+
+        <label for="map-choice">Choix de la carte : </label>
+        <select name="map-choice" id="map-choice">
+        {% for map in map_list %}
+          <option value="{{map.map_name}}">{{ map }}</option>
+        {% endfor %}
+        </select>
+        <input type="button" onclick="location.replace('{% url 'laby:create_map' %}');" value="créer une carte">
+        <input type="submit" value="Rejoindre">
+        
     </form>
 
     <script>

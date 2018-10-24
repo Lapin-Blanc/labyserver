@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<!--
+   index.html
+   
+   Copyright 2018 Fabien Toune <xubuntu@lapin-blanc.com>
+   
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+   MA 02110-1301, USA.
+   
+   
+-->
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Constructeur de carte</title>
+    <link rel="icon" type="image/png" href='{% static "favicon.ico" %}' />
+    <script src='{% static "third-party/p5/p5.js" %}'></script>
+    <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
+    <script src='{% static "js/map_builder.js" %}'></script>
+  </head>
+
+<body>
+  {% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="{% url 'laby:create_map' %}" method="post">  
+  <label for="map-name">Nom de la carte : </label><input type="text" name="map-name">
+  <label for="laby-h-size">Taille horizontale : </label>
+  <select name="laby-h-size" onchange="laby.resize(int(this.value), int(document.getElementById('laby-v-size').value));" id="laby-h-size" >
+    <option value="5" >5</option>
+    <option value="10" selected="selected" >10</option>
+    <option value="15" >15</option>
+    <option value="20" >20</option>
+    <option value="25" >25</option>
+  </select>
+  &nbsp;
+  <label for="laby-v-size">Taille Verticale : </label>
+  <select name="laby-v-size" onchange="laby.resize(int(document.getElementById('laby-h-size').value), int(this.value));" id="laby-v-size" >
+    <option value="5" >5</option>
+    <option value="10" selected="selected" >10</option>
+    <option value="15" >15</option>
+    <option value="20" >20</option>
+    <option value="25" >25</option>
+  </select>
+  &nbsp;
+  <label for="element">Élément à placer : </label>
+  <select name="element"id="element" >
+    <option value="_" >Sol</option>
+    <option value="H" selected="selected" >Mur</option>
+    <option value="C" >Pièce</option>
+    <option value="X" >Super pièce</option>
+  </select>
+  &nbsp;
+  <input type="submit" value="enregistrer">
+  {% csrf_token %}
+  <br>
+  <br>
+  <div id="myCanvas"></div>
+  <textarea name="layout" id="layout" rows="20" cols="60"></textarea>
+</form>  
+</body>
+
+
+</html>

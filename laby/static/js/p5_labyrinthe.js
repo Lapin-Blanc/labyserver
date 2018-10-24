@@ -1,5 +1,5 @@
 DEBUG = true;
-const STEP_DELAY = 500 // Time between movements
+const STEP_DELAY = 100 // Time between movements
 var laby;
 
 var map01 = [
@@ -34,14 +34,14 @@ function preload() {
   
   pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
   astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
-  laby = new Laby(map01);
 }
 
 function setup() {
   var myCanvas = createCanvas(500, 500);
   background('navajowhite');
   myCanvas.parent('myCanvas'); 
-  frameRate(20);
+  frameRate(60);
+  laby = new Laby(map_layout);
   laby.players.push(pegman);
   //~ laby.players.push(aladdin);
   //~ laby.players.push(jasmine);
@@ -53,7 +53,7 @@ function draw() {
   laby.draw();
 }
 
-function Laby(map) {
+function Laby(map_layout) {
   const TILE_SIZE = 50;
   const OK = ['_','C','X'] // Free spots
   const COINS = ['C','X'] // Available coins
@@ -62,7 +62,8 @@ function Laby(map) {
   
   this.players = [];
   this.activePlayer = 0;
-  this.map = JSON.parse(JSON.stringify(map));
+  //~ this.map = JSON.parse(JSON.stringify(map));
+  this.map = JSON.parse(map_layout);
   this.yBlocks = this.map.length;
   this.xBlocks = this.map[0].length;
   
