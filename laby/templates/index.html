@@ -51,10 +51,11 @@
           <option value="{{map.map_name}}">{{ map }}</option>
         {% endfor %}
         </select>
-        <input type="button" onclick="location.replace('{% url 'laby:create_map' %}');" value="créer une carte">
-        <input type="submit" value="Rejoindre">
-        
+        <input type="submit" value="Rejoindre">        
     </form>
+    <br>
+    <br>
+    <input type="button" onclick="location.replace('{% url 'laby:create_map' %}');" value="créer une carte">
 
     <script>
       includeHTML();

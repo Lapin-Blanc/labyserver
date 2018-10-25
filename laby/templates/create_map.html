@@ -24,13 +24,12 @@
    
 -->
 
+  
+
   <head>
     <meta charset="utf-8" />
     <title>Constructeur de carte</title>
     <link rel="icon" type="image/png" href='{% static "favicon.ico" %}' />
-    <script src='{% static "third-party/p5/p5.js" %}'></script>
-    <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
-    <script src='{% static "js/map_builder.js" %}'></script>
     <style>
       div#myCanvas {
           display : block;
@@ -46,6 +45,13 @@
           padding : 10px;
       }
     </style>
+    <script src='{% static "third-party/p5/p5.js" %}'></script>
+    <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
+    <script src='{% static "js/p5_labyrinthe.js" %}'></script>
+    <script src='{% static "js/map_builder.js" %}'></script>
+    <script>
+      game_layout='{{ values.layout|safe }}';
+    </script>
   </head>
 
 <body>
@@ -53,15 +59,15 @@
   <div id="myCanvas"></div>
 
   <h2>Éditeur de carte</h2>
-  {% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
-<form action="{% url 'laby:create_map' %}" method="post">
+  {% if error_message %}<p style="color:red;"><strong>{{ error_message|safe }}</strong></p>{% endif %}
+<form action="{% url 'laby:create_map' %}" method="post" id="my-form">
   <table>
     <tr>
       <td>
         <label for="map-name">Nom de la carte : </label>
       </td>
       <td>
-        <input type="text" name="map-name"> *
+        <input type="text" name="map_name" value="{{ values.map_name|safe }}"> *
       </td>
     </tr>
     <tr>
@@ -129,13 +135,15 @@
     </tr>
     <tr>
       <td colspan="2">
-        <input type="submit" value="enregistrer">
+        <input type="submit" value="enregistrer" onclick="document.getElementById('layout').value=laby.save();
+        document.getElementById('temp').value=laby.save();document.my-form.submit();">
       </td>
     </tr>
   </table>
-  
+  <textarea id='temp'>{{ values.layout|safe }}</textarea>
   {% csrf_token %}
-  <textarea name="layout" id="layout" rows="20" cols="60"></textarea>
+  <input type="hidden" name="layout" id="layout" value="{{ values.layout|safe }}">
+  <script></script>
 </form>  
 </body>
 

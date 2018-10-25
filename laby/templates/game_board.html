@@ -39,7 +39,7 @@
       var remote_code = "javascript-code1";
       var local_score = document.getElementById("local-score");
       var remote_score = document.getElementById("remote-score");
-      var map_layout = '{{ map|safe }}';
+      var game_layout = '{{ map|safe }}';
     </script>
   </head>
 
@@ -67,7 +67,7 @@
     <!-- Game board-->
     <div id="game-board" style="left:-300000px;position:absolute;">
       <h3>Tour <span id="round-number">1</span>  <button onclick="exchange_code();" id="validate-button" disabled="disabled">Valider</button></h3>
-      <div id="myCanvas" style="display:block;padding-left:auto;float:right;"></div>
+      <div id="myCanvas" style="display:block;float:right;"></div>
       <div id="blocklyDiv" ></div>
     </div>
 

@@ -1,69 +1,46 @@
 DEBUG = true;
-const STEP_DELAY = 50 // Time between movements
+const STEP_DELAY = 50
+var default_game = `
+{"TILE_SIZE":50,
+"map":[
+["I","H","H","H","H","H","H","H","H","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","_","_","_","_","_","_","_","_","I"],
+["I","I","I","I","I","I","I","I","I","I"]],
+"yBlocks":10,"xBlocks":10,
+"players":[
+{"nPosX":50,"pX":50,"nPosY":50,"pY":50,"direction":"down","DOWN":8,"RIGHT":4,"UP":0,"LEFT":12,"dir":8,"nDir":8},
+{"nPosX":400,"pX":400,"nPosY":400,"pY":400,"direction":"up","DOWN":8,"RIGHT":4,"UP":0,"LEFT":12,"dir":0,"nDir":0}],
+"activePlayer":0}
+`
+var game_layout; // To be filled during initialization
 var laby;
 
-var map01 = [
-  ['I','H','H','H','H','H','H','H','H','I'],
-  ['I','_','C','_','_','_','_','X','X','I'],
-  ['I','C','_','_','_','_','_','_','X','I'],
-  ['I','_','_','H','C','C','H','_','_','I'],
-  ['I','_','_','C','C','C','C','_','_','I'],
-  ['I','_','_','C','C','C','C','_','_','I'],
-  ['I','_','_','H','C','C','H','_','_','I'],
-  ['I','X','_','_','_','_','_','_','C','I'],
-  ['I','X','X','_','_','_','_','C','_','I'],
-  ['I','I','I','I','I','I','I','I','I','I']
-]
-
-
-
-
-  /////////////// Canvas /////////////////////
-function preload() {
-  coinsPng = loadImage('/static/img/coins.png');
-  superCoinsPng = loadImage('/static/img/super_coins.png');
-  stoneFloor = loadImage('/static/img/floor.jpg');
-  hWall = loadImage('/static/img/h_wall.jpg');
-  vWall = loadImage('/static/img/v_wall.jpg');
-  soundFormats('mp3', 'ogg');
-  coinSound = loadSound('/static/sounds/coin.mp3');
-  superCoinSound = loadSound('/static/sounds/super_coin.mp3');
-  
-  pegman = new Character(50, 50, 'down', '/static/img/pegman_50.png', 8, true, 16, 1);
-  astro = new Character(400, 400, 'up', '/static/img/astro_50.png', 8, true, 16, 1);
-}
-
-function setup() {
-  var myCanvas = createCanvas(500, 500);
-  background('navajowhite');
-  myCanvas.parent('myCanvas'); 
-  frameRate(60);
-  laby = new Laby(map_layout, 'myCanvas');
-  laby.players.push(pegman);
-  laby.players.push(astro);
-}
-
-function draw() {
-  background('navajowhite');
-  laby.draw();
-}
-
-function Laby(map_layout, parent) {
-  const TILE_SIZE = 50;
+function Laby(parent, game_layout) {
+  this.TILE_SIZE = 50;
   const OK = ['_','C','X'] // Free spots
   const COINS = ['C','X'] // Available coins
 
   var coinPos = 0; // initialize coin rotation index
-  
-  this.players = [];
-  this.activePlayer = 0;
-  //~ this.map = JSON.parse(JSON.stringify(map));
-  this.map = JSON.parse(map_layout);
+    
+  var game = JSON.parse(game_layout);
+  this.map = game.map;
   this.yBlocks = this.map.length;
   this.xBlocks = this.map[0].length;
-  this.canvas = createCanvas(this.xBlocks*TILE_SIZE, this.yBlocks*TILE_SIZE);
+  this.canvas = createCanvas(this.xBlocks*this.TILE_SIZE, this.yBlocks*this.TILE_SIZE);
   this.canvas.parent(parent);
   
+  this.players = [];
+  this.players[0] = new Character(game.players[0].pX, game.players[0].pY, game.players[0].direction, '/static/img/pegman_50.png', 8, true, 16, 1);
+  this.players[1] = new Character(game.players[1].pX, game.players[1].pY, game.players[1].direction, '/static/img/astro_50.png', 8, true, 16, 1);
+  this.activePlayer = 0;
+
   this.turnPlayer = function(p, dir, callback) {
     this.players[p].turn(dir, sw);
     var that = this;
@@ -79,7 +56,7 @@ function Laby(map_layout, parent) {
   this.movePlayer = function(pIdx, callback) {
     var p = this.players[pIdx]
     if (!this.facingWall(pIdx)) {
-      p.move(TILE_SIZE, collect);
+      p.move(this.TILE_SIZE, collect);
     } else {
       this.activePlayer = (this.activePlayer+1) % 2;
       callback(false);
@@ -87,8 +64,8 @@ function Laby(map_layout, parent) {
     }
     var o = this;
     function collect(pX, pY) {
-      var xIndex = p.pX/TILE_SIZE;
-      var yIndex = p.pY/TILE_SIZE;
+      var xIndex = p.pX/o.TILE_SIZE;
+      var yIndex = p.pY/o.TILE_SIZE;
       var block = o.map[yIndex][xIndex]
       switch (block) {
         case 'C' :
@@ -117,8 +94,8 @@ function Laby(map_layout, parent) {
   
   this.facingWall = function(player, callback) {
     var p = this.players[player];
-    var xIndex = p.pX/TILE_SIZE;
-    var yIndex = p.pY/TILE_SIZE;
+    var xIndex = p.pX/this.TILE_SIZE;
+    var yIndex = p.pY/this.TILE_SIZE;
     
     switch (p.dir) {
       case p.DOWN :
@@ -140,8 +117,8 @@ function Laby(map_layout, parent) {
   
   this.coinsFaced = function(player, callback) {
     var p = this.players[player];
-    var xIndex = p.pX/TILE_SIZE;
-    var yIndex = p.pY/TILE_SIZE;
+    var xIndex = p.pX/this.TILE_SIZE;
+    var yIndex = p.pY/this.TILE_SIZE;
     
     var coinsCount = 0;
     block = this.map[yIndex][xIndex];
@@ -181,7 +158,11 @@ function Laby(map_layout, parent) {
   } // End coins faced
   
   this.save = function() {
-    return JSON.stringify(this)
+    var tmp = this.canvas;
+    delete this.canvas;
+    ret = JSON.stringify(this);
+    this.canvas = tmp;
+    return ret;
   }
   
   this.restore = function(json) {
@@ -205,21 +186,21 @@ function Laby(map_layout, parent) {
       for (x=0; x < this.xBlocks; x++) {
         switch (this.map[y][x]) {
           case 'H' :
-            image(hWall, x*TILE_SIZE, y*TILE_SIZE);
+            image(hWall, x*this.TILE_SIZE, y*this.TILE_SIZE);
             break;
           case 'I' :
-            image(vWall, x*TILE_SIZE, y*TILE_SIZE);
+            image(vWall, x*this.TILE_SIZE, y*this.TILE_SIZE);
             break;
           case '_' :
-            image(stoneFloor, x*TILE_SIZE, y*TILE_SIZE);
+            image(stoneFloor, x*this.TILE_SIZE, y*this.TILE_SIZE);
             break;
           case 'C' :
-            image(stoneFloor, x*TILE_SIZE, y*TILE_SIZE);
-            image(coin, x*TILE_SIZE+17, y*TILE_SIZE+25)
+            image(stoneFloor, x*this.TILE_SIZE, y*this.TILE_SIZE);
+            image(coin, x*this.TILE_SIZE+17, y*this.TILE_SIZE+25)
             break;
           case 'X' :
-            image(stoneFloor, x*TILE_SIZE, y*TILE_SIZE);
-            image(superCoin, x*TILE_SIZE+15, y*TILE_SIZE+20)
+            image(stoneFloor, x*this.TILE_SIZE, y*this.TILE_SIZE);
+            image(superCoin, x*this.TILE_SIZE+15, y*this.TILE_SIZE+20)
             break;
         }
       }
@@ -230,7 +211,6 @@ function Laby(map_layout, parent) {
   }
 }
 
-
 function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nbHPix, nbVPix ) {
 // Image préchargée, nombre de sprite horizontaux, verticaux
 // position 'UP', 'DOWN', 'LEFT', 'RIGHT'
@@ -238,6 +218,7 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
 
   this.pX = this.nPosX = posX ? posX : 0;
   this.pY = this.nPosY = posY ? posY : 0;
+  this.direction = direction;
 
   var downIndex = downIndex ? downIndex : 0;
   var nbHPix = nbHPix ? nbHPix : 8;
@@ -305,7 +286,9 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
     if (this.pY > this.nPosY) this.pY--;
     
     // Draw image
-    image(sprite, this.pX, this.pY, pixWidth, pixHeight, (this.dir%nbHPix)*pixWidth, ~~(this.dir/nbHPix)*pixHeight, pixWidth, pixHeight);
+    if (pixWidth && pixHeight) {
+      image(sprite, this.pX, this.pY, pixWidth, pixHeight, (this.dir%nbHPix)*pixWidth, ~~(this.dir/nbHPix)*pixHeight, pixWidth, pixHeight);
+    }
   }
   
   /////////////// want to turn //////////////////////
@@ -314,25 +297,49 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
     switch (to) {
       case 'left' :
         switch (this.dir) {
-          case this.DOWN : this.nDir = this.RIGHT;
+          case this.DOWN : {
+            this.nDir = this.RIGHT;
+            this.direction = 'right';
+            }
             break;
-          case this.RIGHT : this.nDir = this.UP;
+          case this.RIGHT : {
+            this.nDir = this.UP;
+            this.direction = 'up';
+            }
             break;
-          case this.UP : this.nDir = this.LEFT;
+          case this.UP : {
+            this.nDir = this.LEFT;
+            this.direction = 'left';
+            }
             break;
-          case this.LEFT : this.nDir = this.DOWN;
+          case this.LEFT : {
+            this.nDir = this.DOWN;
+            this.direction = 'down';
+            }
             break;
         }
         break;
       case 'right' :
         switch (this.dir) {
-          case this.DOWN : this.nDir = this.LEFT;
+          case this.DOWN : {
+            this.nDir = this.LEFT;
+            this.direction = 'left';
+            }
             break;
-          case this.LEFT : this.nDir = this.UP;
+          case this.LEFT : {
+            this.nDir = this.UP;
+            this.direction = 'up';
+            }
             break;
-          case this.UP : this.nDir = this.RIGHT;
+          case this.UP : {
+            this.nDir = this.RIGHT;
+            this.direction = 'right';
+            }
             break;
-          case this.RIGHT : this.nDir = this.DOWN;
+          case this.RIGHT : {
+            this.nDir = this.DOWN;
+            this.direction = 'down';
+            }
             break;
         }
         break;
@@ -382,4 +389,28 @@ function Character(posX, posY, direction, spriteImgUrl, downIndex, clockWise, nb
     }
   }
   /////////////// Moved //////////////////////
+}
+
+  /////////////// Canvas /////////////////////
+function preload() {
+  coinsPng = loadImage('/static/img/coins.png');
+  superCoinsPng = loadImage('/static/img/super_coins.png');
+  stoneFloor = loadImage('/static/img/floor.jpg');
+  hWall = loadImage('/static/img/h_wall.jpg');
+  vWall = loadImage('/static/img/v_wall.jpg');
+  soundFormats('mp3', 'ogg');
+  coinSound = loadSound('/static/sounds/coin.mp3');
+  superCoinSound = loadSound('/static/sounds/super_coin.mp3');
+  
+}
+
+function setup() {
+  background('navajowhite');
+  frameRate(60);
+  laby = new Laby('myCanvas', game_layout||default_game);
+}
+
+function draw() {
+  background('navajowhite');
+  laby.draw();
 }

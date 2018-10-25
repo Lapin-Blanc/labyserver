@@ -208,8 +208,17 @@ def map_list(request):
 
 def create_map(request):
   if request.method == 'POST' :
-    map_name = request.POST['map-name']
+    error_msg = ""
+    map_name = request.POST['map_name']
     layout = request.POST['layout']
+    if not map_name : error_msg += "Le nom de carte est obligatoire<br>"
+    if len(map_name)<5 : error_msg += "Le nom doit faire au moins 5 caractères<br>"
+    if error_msg :
+      ctxt = {
+        'error_message' : error_msg,
+        'values' : request.POST,
+        }
+      return render(request, 'create_map.html', ctxt)
     m = Map(map_name = map_name, layout=layout)
     m.save()
     return HttpResponseRedirect(reverse('laby:index'))
