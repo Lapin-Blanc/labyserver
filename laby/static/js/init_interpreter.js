@@ -22,6 +22,7 @@ function parseCode() {
   count0 = count1 = 0;
   interpreters = [interpreter0, interpreter1];
 }
+
 // For later multiplayer > 2
 function t(i) {
   interpreters[i].run();
