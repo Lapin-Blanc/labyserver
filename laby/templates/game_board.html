@@ -53,43 +53,28 @@
     </div>
 
     <!-- Header -->
-    <h2>Partie en cours : 
-        <img class="game-icon" src='{% if position == 0 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'> 
-        [<span id="local-score">0</span>] {{ player }}
-        contre
-        <span id="opponent"></span> [<span id="remote-score">0</span>] 
-        <img class="game-icon" src='{% if position == 1 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'>
-    </h2>    
-    <hr>
+    <div id="header">
+      <h2>Partie en cours : 
+          <img class="game-icon" src='{% if position == 0 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'> 
+          [<span id="local-score">0</span>] {{ player }}
+          contre
+          <span id="opponent"></span> [<span id="remote-score">0</span>] 
+          <img class="game-icon" src='{% if position == 1 %}{% static "img/pegman_ico.jpg" %}{% else %}{% static "img/astro_ico.jpg" %}{% endif %}'>
+      </h2>    
+      <hr>
+    </div>
     
     <!-- Game board-->
     <div id="game-board" style="left:-300000px;position:absolute;">
       <h3>Tour <span id="round-number">1</span>  <button onclick="exchange_code();" id="validate-button" disabled="disabled">Valider</button></h3>
-      <table border="1">
-        <tr>
-          <td><div id="blocklyDiv" style="height: 520px; width: 700px;"></td>
-          <td style="padding:10px;"><div id="myCanvas"></td>
-        </tr>
-        <tr>
-            <td>
-              <textarea id="javascript-code0" class="js-code">{{ code }}turn('left');
-turn('left');
-turn('left');
-turn('left');</textarea>
-            </td>
-          <td>
-              <textarea id="javascript-code1" class="js-code">{{ code }}turn('left');
-turn('left');
-turn('left');
-turn('left');</textarea>
-          </td>
-        </tr>
-      </table>    
+      <div id="myCanvas" style="display:block;padding-left:auto;float:right;"></div>
+      <div id="blocklyDiv" ></div>
     </div>
 
-<!--
-  <button onclick="keep_alive();">Keep alive</button>
--->
+    <!-- Bottom -->
+    <input type="hidden" id="javascript-code0" value="{{ code }}turn('left');">
+    <input type="hidden" id="javascript-code1" value="{{ code }}turn('left');">
+    
   
   <div id="csrf">{% csrf_token %}</div>
   <script>keep_alive()</script>

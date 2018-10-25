@@ -2,7 +2,12 @@ div.status {
   border : solid black 1px;
   float : right;
   clear : both;
-  padding : 15px;
+  padding : 0px 15px;
+}
+
+#blocklyDiv {
+  height : 700px;
+  width : 700px;
 }
 
 div.status > a {

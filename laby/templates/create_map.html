@@ -31,43 +31,110 @@
     <script src='{% static "third-party/p5/p5.js" %}'></script>
     <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
     <script src='{% static "js/map_builder.js" %}'></script>
+    <style>
+      div#myCanvas {
+          display : block;
+          float : right;
+          margin-left : auto;
+      }
+      #layout {
+          display: block;
+          position: absolute;
+          left: -3000px;
+      }
+      table td {
+          padding : 10px;
+      }
+    </style>
   </head>
 
 <body>
-  {% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
-<form action="{% url 'laby:create_map' %}" method="post">  
-  <label for="map-name">Nom de la carte : </label><input type="text" name="map-name">
-  <label for="laby-h-size">Taille horizontale : </label>
-  <select name="laby-h-size" onchange="laby.resize(int(this.value), int(document.getElementById('laby-v-size').value));" id="laby-h-size" >
-    <option value="5" >5</option>
-    <option value="10" selected="selected" >10</option>
-    <option value="15" >15</option>
-    <option value="20" >20</option>
-    <option value="25" >25</option>
-  </select>
-  &nbsp;
-  <label for="laby-v-size">Taille Verticale : </label>
-  <select name="laby-v-size" onchange="laby.resize(int(document.getElementById('laby-h-size').value), int(this.value));" id="laby-v-size" >
-    <option value="5" >5</option>
-    <option value="10" selected="selected" >10</option>
-    <option value="15" >15</option>
-    <option value="20" >20</option>
-    <option value="25" >25</option>
-  </select>
-  &nbsp;
-  <label for="element">Élément à placer : </label>
-  <select name="element"id="element" >
-    <option value="_" >Sol</option>
-    <option value="H" selected="selected" >Mur</option>
-    <option value="C" >Pièce</option>
-    <option value="X" >Super pièce</option>
-  </select>
-  &nbsp;
-  <input type="submit" value="enregistrer">
-  {% csrf_token %}
-  <br>
-  <br>
+  
   <div id="myCanvas"></div>
+
+  <h2>Éditeur de carte</h2>
+  {% if error_message %}<p style="color:red;"><strong>{{ error_message }}</strong></p>{% endif %}
+<form action="{% url 'laby:create_map' %}" method="post">
+  <table>
+    <tr>
+      <td>
+        <label for="map-name">Nom de la carte : </label>
+      </td>
+      <td>
+        <input type="text" name="map-name"> *
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="laby-h-size">Taille horizontale : </label>
+      </td>
+      <td>
+        <select name="laby-h-size" onchange="laby.resize(int(this.value), int(document.getElementById('laby-v-size').value));" id="laby-h-size" >
+          <option value="5" >5</option>
+          <option value="6" >6</option>
+          <option value="7" >7</option>
+          <option value="8" >8</option>
+          <option value="9" >9</option>
+          <option value="10" selected="selected" >10</option>
+          <option value="11" >11</option>
+          <option value="12" >12</option>
+          <option value="13" >13</option>
+          <option value="14" >14</option>
+          <option value="15" >15</option>
+          <option value="16" >16</option>
+          <option value="17" >17</option>
+          <option value="18" >18</option>
+          <option value="19" >19</option>
+          <option value="20" >20</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="laby-v-size">Taille Verticale : </label>
+      </td>
+      <td>
+        <select name="laby-v-size" onchange="laby.resize(int(document.getElementById('laby-h-size').value), int(this.value));" id="laby-v-size" >
+          <option value="5" >5</option>
+          <option value="6" >6</option>
+          <option value="7" >7</option>
+          <option value="8" >8</option>
+          <option value="9" >9</option>
+          <option value="10" selected="" >10</option>
+          <option value="11" >11</option>
+          <option value="12" >12</option>
+          <option value="13" >13</option>
+          <option value="14" >14</option>
+          <option value="15" >15</option>
+          <option value="16" >16</option>
+          <option value="17" >17</option>
+          <option value="18" >18</option>
+          <option value="19" >19</option>
+          <option value="20" >20</option>
+        </select>      
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label for="element">Élément à placer : </label>
+      </td>
+      <td>
+        <input type="radio" name="element" value="P" checked="checked"> Pegman<br>
+        <input type="radio" name="element" value="A"> Astro<br>
+        <input type="radio" name="element" value="H"> Mur<br>
+        <input type="radio" name="element" value="C"> Pièce<br>
+        <input type="radio" name="element" value="X"> Super pièce<br>
+        <input type="radio" name="element" value="_"> Effacer
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <input type="submit" value="enregistrer">
+      </td>
+    </tr>
+  </table>
+  
+  {% csrf_token %}
   <textarea name="layout" id="layout" rows="20" cols="60"></textarea>
 </form>  
 </body>
