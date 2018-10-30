@@ -152,7 +152,7 @@ function Laby(parent, game_layout) {
           block = this.map[yIndex][xIndex];
         }
         break;
-    }    
+    }
     if (callback) {callback(coinsCount);}
     return coinsCount;
   } // End coins faced

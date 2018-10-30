@@ -19,20 +19,20 @@
 
   ///////////////////////////////////////////////
   // Facing a wall ?
-  var wrapper = function(callback) {
-    interpreter.laby.facingWall(interpreter.player, callback);
+  var wrapper = function() {
+    return interpreter.laby.facingWall(interpreter.player);
   }
   interpreter.setProperty(scope, 'facingWall',
-      interpreter.createAsyncFunction(wrapper));
+      interpreter.createNativeFunction(wrapper));
   /*------------------------------------------*/
 
   ///////////////////////////////////////////////
   // Coins in front of player ?
-  var wrapper = function(callback) {
-    interpreter.laby.coinsFaced(interpreter.player, callback);
+  var wrapper = function() {
+    return interpreter.laby.coinsFaced(interpreter.player);
   }
   interpreter.setProperty(scope, 'coinsFaced',
-      interpreter.createAsyncFunction(wrapper));
+      interpreter.createNativeFunction(wrapper));
   /*------------------------------------------*/
 }
 
