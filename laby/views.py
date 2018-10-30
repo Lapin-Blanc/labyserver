@@ -200,13 +200,29 @@ def end_round(request, game_id):
   return response
   
 # Maps management #########################
+def home(request):
+  return render(request, 'home.html')
+  
+def map_editor(request):
+  return render(request, 'map_editor.html')
+
 def map_list(request):
   ctxt = {}
   map_list = Map.objects.all()
   ctxt['map_list'] = map_list
   return render(request, 'map_list.html', ctxt)
 
-def create_map(request):
+def create_map(request, map_id=None):
+  if map_id :
+    my_map = Map.objects.get(id=map_id)
+    ctxt = {
+      'values' : {
+        'map_name' : my_map.map_name,
+        'layout' : my_map.layout,
+      }
+    }
+    return render(request, 'create_map.html', ctxt)
+
   if request.method == 'POST' :
     error_msg = ""
     map_name = request.POST['map_name']
@@ -219,9 +235,10 @@ def create_map(request):
         'values' : request.POST,
         }
       return render(request, 'create_map.html', ctxt)
-    m = Map(map_name = map_name, layout=layout)
+    m, c = Map.objects.get_or_create(map_name = map_name)
+    m.layout = layout
     m.save()
-    return HttpResponseRedirect(reverse('laby:index'))
+    return HttpResponseRedirect(reverse('laby:map_list'))
   else :
     return render(request, 'create_map.html')
     

@@ -30,7 +30,6 @@ Laby.prototype.resize = function(width, height) {
   this.yBlocks = this.map.length;
   this.xBlocks = this.map[0].length;
   document.getElementById('layout').value = laby.save();
-  document.getElementById('temp').value = laby.save();
 }
 
 mouseClicked = function() {
@@ -52,14 +51,12 @@ mouseClicked = function() {
     if ( (laby.players[0].pX/laby.TILE_SIZE == mX) && (laby.players[0].pY/laby.TILE_SIZE == mY) ) {
       laby.players[0].turn('right');
       document.getElementById('layout').value = laby.save();
-      document.getElementById('temp').value = laby.save();
       return;
     }
     // Else, we move it
     laby.players[0].pX = laby.players[0].nPosX = mX * laby.TILE_SIZE;
     laby.players[0].pY = laby.players[0].nPosY = mY * laby.TILE_SIZE;
     document.getElementById('layout').value = laby.save();
-    document.getElementById('temp').value = laby.save();
     return;
   }
 
@@ -69,13 +66,11 @@ mouseClicked = function() {
     if ( (laby.players[1].pX/laby.TILE_SIZE == mX) && (laby.players[1].pY/laby.TILE_SIZE == mY) ) {
       laby.players[1].turn('left');
       document.getElementById('layout').value = laby.save();
-      document.getElementById('temp').value = laby.save();
       return;
     }
     laby.players[1].pX = laby.players[1].nPosX = mX * laby.TILE_SIZE;
     laby.players[1].pY = laby.players[1].nPosY = mY * laby.TILE_SIZE;
     document.getElementById('layout').value = laby.save();
-    document.getElementById('temp').value = laby.save();
     return;
   }
   
@@ -92,6 +87,5 @@ mouseClicked = function() {
   }
   laby.map[mY][mX] = elt;  
   document.getElementById('layout').value = laby.save();
-  document.getElementById('temp').value = laby.save();
   
 }

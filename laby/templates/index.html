@@ -1,11 +1,8 @@
+{% extends 'laby/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <title>Accueil</title>
-    <link rel="icon" type="image/png" href='{% static "favicon.ico" %}' />
-    <link rel="stylesheet" type="text/css" href='{% static "css/game.css" %}'>
+{% block title %}Liste des parties{% endblock %}
+
+{% block javascript %}
     <script>
     function includeHTML() {
       var elmnt, file, xhttp;
@@ -25,11 +22,11 @@
       }
       setTimeout(includeHTML, 5000);
     }
+    includeHTML();
     </script>  
-  </head>
+{% endblock %}
 
-  <body>
-
+{% block content %}
     <h2>Parties en cours : </h2><div style="float:right;">Bonjour {{ player }} | <a href="{% url 'laby:logout' %}">Déconnexion</a></div>
     
     <div id="game-list" w3-include-html="{% url 'laby:game_list' %}"></div> 
@@ -51,15 +48,7 @@
           <option value="{{map.map_name}}">{{ map }}</option>
         {% endfor %}
         </select>
-        <input type="submit" value="Rejoindre">        
+        <input type="submit" value="Créer et rejoindre">        
     </form>
     <br>
-    <br>
-    <input type="button" onclick="location.replace('{% url 'laby:create_map' %}');" value="créer une carte">
-
-    <script>
-      includeHTML();
-    </script> 
-  </body>
-
-</html>
+{% endblock %}

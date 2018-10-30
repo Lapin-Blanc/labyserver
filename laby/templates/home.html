@@ -1,0 +1,7 @@
+{% extends 'laby/base.html' %}
+
+{% block content %}
+  <h1>Accueil</h1>
+  <a href="{% url 'laby:index' %}">Jeux</a><br>
+  <a href="{% url 'laby:map_list' %}">Édition de cartes</a>
+{% endblock %}

@@ -1,35 +1,10 @@
+{% extends 'laby/base.html' %}
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<!--
-   index.html
-   
-   Copyright 2018 Fabien Toune <xubuntu@lapin-blanc.com>
-   
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-   
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.
-   
-   
--->
 
-  
+{% block title %}Éditeur de carte{% endblock %}
 
-  <head>
-    <meta charset="utf-8" />
-    <title>Constructeur de carte</title>
-    <link rel="icon" type="image/png" href='{% static "favicon.ico" %}' />
+{% block styles %} 
     <style>
       div#myCanvas {
           display : block;
@@ -45,6 +20,9 @@
           padding : 10px;
       }
     </style>
+{% endblock %}
+
+{% block javascript %}
     <script src='{% static "third-party/p5/p5.js" %}'></script>
     <script src='{% static "third-party/p5/p5.sound.js" %}'></script>
     <script src='{% static "js/p5_labyrinthe.js" %}'></script>
@@ -52,13 +30,16 @@
     <script>
       game_layout='{{ values.layout|safe }}';
     </script>
+{% endblock %}
   </head>
 
-<body>
-  
+{% block content %}  
   <div id="myCanvas"></div>
 
   <h2>Éditeur de carte</h2>
+  <h5><a href="{% url 'laby:home' %}">Accueil</a></h5>
+  <h5><a href="{% url 'laby:map_list' %}">Liste des cartes</a></h5>
+  <h5><a href="{% url 'laby:index' %}">Jeux</a></h5>
   {% if error_message %}<p style="color:red;"><strong>{{ error_message|safe }}</strong></p>{% endif %}
 <form action="{% url 'laby:create_map' %}" method="post" id="my-form">
   <table>
@@ -87,11 +68,13 @@
           <option value="13" >13</option>
           <option value="14" >14</option>
           <option value="15" >15</option>
+<!--
           <option value="16" >16</option>
           <option value="17" >17</option>
           <option value="18" >18</option>
           <option value="19" >19</option>
           <option value="20" >20</option>
+-->
         </select>
       </td>
     </tr>
@@ -112,11 +95,13 @@
           <option value="13" >13</option>
           <option value="14" >14</option>
           <option value="15" >15</option>
+<!--
           <option value="16" >16</option>
           <option value="17" >17</option>
           <option value="18" >18</option>
           <option value="19" >19</option>
           <option value="20" >20</option>
+-->
         </select>      
       </td>
     </tr>
@@ -135,17 +120,12 @@
     </tr>
     <tr>
       <td colspan="2">
-        <input type="submit" value="enregistrer" onclick="document.getElementById('layout').value=laby.save();
-        document.getElementById('temp').value=laby.save();document.my-form.submit();">
+        <input type="submit" value="enregistrer" onclick="
+          document.getElementById('layout').value=laby.save();
+          document.my-form.submit();">
       </td>
     </tr>
   </table>
-  <textarea id='temp'>{{ values.layout|safe }}</textarea>
   {% csrf_token %}
   <input type="hidden" name="layout" id="layout" value="{{ values.layout|safe }}">
-  <script></script>
-</form>  
-</body>
-
-
-</html>
+{% endblock %}
